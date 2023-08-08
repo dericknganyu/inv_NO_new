@@ -294,7 +294,12 @@ def darcy_mask2(x):
 
 def total_variance(x):
     return torch.mean(torch.abs(x[...,:-1] - x[...,1:])) + torch.mean(torch.abs(x[...,:-1,:] - x[...,1:,:]))     
-    
+
+def total_variance_1d(x):
+    L2loss = LpLoss()
+    return torch.mean(torch.abs(x[...,:-1] - x[...,1:])) + L2loss.abs(x[...,:-1,:], x[...,1:,:]) #f2nd try
+    # return torch.mean(torch.abs(x[...,:-1] - x[...,1:])) #first try
+
 def total_variation_loss(img, weight=1):
     bs, h, w = img.size()
     tv_h = torch.pow(img[:, 1:, :]-img[:, :-1, :], 2).sum()

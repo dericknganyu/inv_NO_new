@@ -543,7 +543,7 @@ for ep  in range(epochs):
         loss_f, loss_bd = 0, 0
             
     #TV_loss = total_variation_loss if (pb == 'poisson' and not(no == 'pcann' or no == 'pcalin')) else total_variance
-    TV_loss = total_variance if pb == 'darcyPWC' or pb == 'structuralMechanics' else tvl2
+    TV_loss = total_variance if pb == 'darcyPWC' else total_variance_1d if pb == 'structuralMechanics' else tvl2
     loss_TV = TV_loss(x_normalizer.decode(out_masked))
     
     pino_loss       = 0.2*loss_f + loss_data       + alpha*loss_TV
