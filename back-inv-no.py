@@ -88,6 +88,15 @@ if no == 'fno':
                 128:'',
                 256:'',
                 512:''}
+    if pb == 'navierStokes':
+        res = 64
+        MODELS = {63:'/home/derick/Documents/FNO/navier_stokes/main/files/inv/last_model_inv_064~res_0.004186~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230712-192004.pt'}
+    if pb == 'helmholtz':
+        res = 101
+        MODELS = {100:'/home/derick/Documents/FNO/helmholtz/main/files/inv/last_model_inv_101~res_0.00467~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230712-213904.pt'}
+    if pb == 'structuralMechanics':
+        res = 41
+        MODELS = {40:'/home/derick/Documents/FNO/structural_mechanics/main/files/inv/last_model_inv_021~res_0.21811~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230714-123804.pt'}
     saved_model = MODELS[res-1]
 
 
@@ -116,12 +125,20 @@ if no == 'pino':
                 128:'',
                 256:'',
                 512:''}
+    if pb == 'navierStokes':
+        res = 64
+        MODELS = {63:''}
+    if pb == 'helmholtz':
+        res = 101
+        MODELS = {100:''}
+    if pb == 'structuralMechanics':
+        res = 41
+        MODELS = {40:''}
     saved_model = MODELS[res-1]
 
 if no == 'ufno':
     modes = 12
     width = 32
-    model = UFNO2d(modes, modes, width).cuda()
     if pb == 'darcyPWC':
         MODELS = {16:'',
                 32:'',
@@ -143,8 +160,19 @@ if no == 'ufno':
                 128:'',
                 256:'',
                 512:''}
+    if pb == 'navierStokes':
+        res = 64
+        MODELS = {63:'/home/derick/Documents/U-FNO/navier_stokes/files/inv/last_model_inv_064~res_0.01047~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230720-005051.pt'}
+    if pb == 'helmholtz':
+        res = 101
+        MODELS = {100:'/home/derick/Documents/U-FNO/helmholtz/files/inv/last_model_inv_101~res_0.001322~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230720-010156.pt'}
+    if pb == 'structuralMechanics':
+        res = 41
+        MODELS = {40:'/home/derick/Documents/U-FNO/structural_mechanics/files/inv/last_model_inv_041~res_0.165815~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230719-172639.pt'}
     saved_model = MODELS[res-1]
-
+    padding = round_to_multiple(res, 2**3, direction='up') - res 
+    model = UFNO2d_modif(modes, modes, width, padding).cuda()
+    saved_model = MODELS[res-1]
 
 if no == 'mwt':
     ich = 3
@@ -179,6 +207,15 @@ if no == 'mwt':
                 128:'',
                 256:'',
                 512:''}
+    if pb == 'navierStokes':
+        res = 64
+        MODELS = {63:'/home/derick/Documents/MWT/navier_stokes/files/inv/last_model_cs_inv_064~res_0.004158~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230717-194058.pt'}
+    if pb == 'helmholtz':
+        res = 101
+        MODELS = {100:'/home/derick/Documents/MWT/helmholtz/files/inv/last_model_cs_inv_101~res_0.00467~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230717-223246.pt'}
+    if pb == 'structuralMechanics':
+        res = 41
+        MODELS = {40:'/home/derick/Documents/MWT/structural_mechanics/files/inv/last_model_cs_inv_041~res_0.163985~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230717-194115.pt'}
     saved_model = MODELS[res-1]
 
 if no == "pcalin":
@@ -218,6 +255,15 @@ if no == "pcalin":
                 128:'',
                 256:'',
                 512:''}
+    if pb == 'navierStokes':
+        res = 64
+        MODELS = {63:''}
+    if pb == 'helmholtz':
+        res = 101
+        MODELS = {100:''}
+    if pb == 'structuralMechanics':
+        res = 41
+        MODELS = {40:''}
     saved_model = MODELS[res-1]
 
 if no == "pcann":
@@ -254,6 +300,15 @@ if no == "pcann":
                 128:'',
                 256:'',
                 512:''}
+    if pb == 'navierStokes':
+        res = 64
+        MODELS = {63:''}
+    if pb == 'helmholtz':
+        res = 101
+        MODELS = {100:''}
+    if pb == 'structuralMechanics':
+        res = 41
+        MODELS = {40:''}
     saved_model = MODELS[res-1]
 
 
@@ -282,19 +337,34 @@ if torch.cuda.device_count() > 1:
 
 if pb == 'darcyPWC':
     fileName_ex = "datasets/new_aUP_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5" 
-    fileName = "/localdata/Derick/stuart_data/Darcy_421/new_aUP_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyPWC/UnitGaussianNormalizer/'
-    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/darcyPWC/UnitGaussianNormalizer/'
+    fileName    = "/localdata/Derick/stuart_data/Darcy_421/new_aUP_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    normPATH    = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyPWC/UnitGaussianNormalizer/'
+    pcaPATH     = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/darcyPWC/UnitGaussianNormalizer/'
 if pb == 'darcyLN': 
     fileName_ex = "datasets/aUL_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    fileName = "/localdata/Derick/stuart_data/Darcy_421/aUL_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyLN/UnitGaussianNormalizer/'
-    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/darcyLN/UnitGaussianNormalizer/'
+    fileName    = "/localdata/Derick/stuart_data/Darcy_421/aUL_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    normPATH    = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyLN/UnitGaussianNormalizer/'
+    pcaPATH     = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/darcyLN/UnitGaussianNormalizer/'
 if pb == 'poisson': 
     fileName_ex = "datasets/fUG_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    fileName = "/localdata/Derick/stuart_data/Darcy_421/fUG_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/poisson/UnitGaussianNormalizer/'
-    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/poisson/UnitGaussianNormalizer/'
+    fileName    = "/localdata/Derick/stuart_data/Darcy_421/fUG_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    normPATH    = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/poisson/UnitGaussianNormalizer/'
+    pcaPATH     = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/poisson/UnitGaussianNormalizer/'
+if pb == 'navierStokes': 
+    fileName_ex = "datasets/NavierStokes_TrainData=1_TestData=1_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
+    fileName    = "/localdata/Derick/stuart_data/Darcy_421/NavierStokes_TrainData=1000_TestData=5000_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
+    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/navierStokes/UnitGaussianNormalizer/'
+    pcaPATH     = ''
+if pb == 'helmholtz': 
+    fileName_ex = "datasets/Helmholtz_TrainData=1_TestData=1_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
+    fileName    = "/localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
+    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
+    pcaPATH     = ''
+if pb == 'structuralMechanics': 
+    fileName_ex = "datasets/StructuralMechanics_TrainData=1_TestData=1_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
+    fileName    = "/localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
+    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
+    pcaPATH     = ''
 
 
 
@@ -314,8 +384,8 @@ _, _, _, Y_test_noisy = add_noise((useless, useless, useless, Y_test), noise_rat
 print ("    Adding noise completed after %.2f minutes"%((time.time()-tt)/60))
 
 ntrain = 1000
-x_normalizer = torch.load(normPATH+"param_normalizer%s-res-%s-ntrain.pt"%(res-1, ntrain)) # UnitGaussianNormalizer(x)
-y_normalizer = torch.load(normPATH+"solut_normalizer%s-res-%s-ntrain.pt"%(res-1, ntrain)) # UnitGaussianNormalizer(y)
+x_normalizer = torch.load(normPATH+"param_normalizer-%s-res-%s-ntrain.pt"%(res-1, ntrain)) # UnitGaussianNormalizer(x)
+y_normalizer = torch.load(normPATH+"solut_normalizer-%s-res-%s-ntrain.pt"%(res-1, ntrain)) # UnitGaussianNormalizer(y)
 
 x = torch.from_numpy(X_test).float()#.cuda()
 y = torch.from_numpy(Y_test).float()#.cuda()
@@ -548,12 +618,12 @@ print()
 print("Ploting comparism of FDM and FNO Simulation results\n\n")
 fig = plt.figure(figsize=((5+2)*4, (5+0.5)*2))
 
-if pb[0:5] == 'darcy':
-    fig.suptitle(r"Plot of $-\nabla \cdot (a(s) \nabla u(s)) = f(s), \partial \Omega = 0$ with $u|_{\partial \Omega}  = 0.$")
-if pb == 'poisson':
-    fig.suptitle("Plot of $- \Delta u = f(x, y)$ on $\Omega = ]0,1[ x ]0,1[$ with $u|_{\partial \Omega}  = 0.$")
+# if pb[0:5] == 'darcy':
+#     fig.suptitle(r"Plot of $-\nabla \cdot (a(s) \nabla u(s)) = f(s), \partial \Omega = 0$ with $u|_{\partial \Omega}  = 0.$")
+# if pb == 'poisson':
+#     fig.suptitle("Plot of $- \Delta u = f(x, y)$ on $\Omega = ]0,1[ x ]0,1[$ with $u|_{\partial \Omega}  = 0.$")
 
-colourMap = parula() #plt.cm.jet #plt.cm.coolwarm
+colourMap = plt.cm.magma # parula() #plt.cm.jet #plt.cm.coolwarm
 
 plt.subplot(2, 4, 1)
 plt.xlabel('x')#, fontsize=16, labelpad=15)
@@ -580,7 +650,7 @@ plt.subplot(2, 4, 4)
 plt.xlabel('x')#, fontsize=16, labelpad=15)
 plt.ylabel('y')#, fontsize=16, labelpad=15)
 plt.title("FDM-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO, U_FDM).item(), 3)))
-plt.imshow(np.abs(U_FDM - U_NO), cmap=colourMap, extent=[0, 1, 0,1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+plt.imshow(np.abs(U_FDM - U_NO), cmap=colourMap, extent=[0, 1, 0,1], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#, vmin=0, vmax=1, )
 plt.colorbar()#(format=OOMFormatter(-5))
 
 plt.subplot(2, 4, 5)
@@ -608,7 +678,7 @@ plt.subplot(2, 4, 8)
 plt.xlabel('x')#, fontsize=16, labelpad=15)
 plt.ylabel('y')#, fontsize=16, labelpad=15)
 plt.title("FDM-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO_noisy, U_FDM).item(), 3)))
-plt.imshow(np.abs(U_FDM - U_NO_noisy), cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+plt.imshow(np.abs(U_FDM - U_NO_noisy), cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#, vmin=0, vmax=1, )
 plt.colorbar()#(format=OOMFormatter(-5))
 
 fig.tight_layout()   
@@ -630,7 +700,7 @@ plt.subplot(1, 2, 2)
 plt.xlabel('x')#, fontsize=16, labelpad=15)
 plt.ylabel('y')#, fontsize=16, labelpad=15)
 plt.title("Truth-inv"+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO_noisy, U_FDM).item(), 3)))
-plt.imshow(np.abs(U_FDM - U_NO_noisy), cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+plt.imshow(np.abs(U_FDM - U_NO_noisy), cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#, vmin=0, vmax=1, )
 plt.colorbar()#format=OOMFormatter(-5))
 
 fig.tight_layout()

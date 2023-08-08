@@ -1,6 +1,10 @@
 figures
+figures-backward
 datasets
 files
 utilities/__pycache__
 script.py
+.png
+.txt
+.pt
 
