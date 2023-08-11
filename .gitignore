@@ -1,5 +1,7 @@
 figures
-figures-backward
+figures*
+files
+files*
 datasets
 files
 utilities/__pycache__

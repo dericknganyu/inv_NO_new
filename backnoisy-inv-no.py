@@ -50,7 +50,7 @@ parser.add_argument('--bs', default=10, type = int, help='batch_size')#
 #parsing
 args = parser.parse_args()
 epochs = args.ep
-res = args.res + 1
+res = args.res #+ 1 !!!!!!!!!!!!!
 learning_rate = args.lr
 no = args.no
 pb = args.pb
@@ -78,7 +78,8 @@ if no == 'pino':
 if no == 'ufno':
     modes = 12
     width = 32
-    model = UFNO2d(modes, modes, width).cuda()
+    padding = round_to_multiple(res, 2**3, direction='up') - res 
+    model = UFNO2d_modif(modes, modes, width, padding).cuda()
 
 if no == 'mwt':
     ich = 3
@@ -139,6 +140,24 @@ if pb == 'poisson':
     fileName = "/localdata/Derick/stuart_data/Darcy_421/fUG_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/poisson/UnitGaussianNormalizer/'
     pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/poisson/UnitGaussianNormalizer/'
+if pb == 'navierStokes': 
+    res = 64
+    fileName_ex = "datasets/NavierStokes_TrainData=1_TestData=1_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
+    fileName    = "/localdata/Derick/stuart_data/Darcy_421/NavierStokes_TrainData=1000_TestData=5000_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
+    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/navierStokes/UnitGaussianNormalizer/'
+    pcaPATH     = ''
+if pb == 'helmholtz': 
+    res = 101
+    fileName_ex = "datasets/Helmholtz_TrainData=1_TestData=1_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
+    fileName    = "/localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
+    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
+    pcaPATH     = ''
+if pb == 'structuralMechanics': 
+    res = 41
+    fileName_ex = "datasets/StructuralMechanics_TrainData=1_TestData=1_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
+    fileName    = "/localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
+    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
+    pcaPATH     = ''
 
 
 
@@ -424,7 +443,6 @@ plt.savefig(directory_figs + "/Error_VS_TrainingStep"+ModelInfos+".png", dpi=500
 model.load_state_dict(torch.load(directory + "/last_model"+ModelInfos+".pt"))
 model.eval()
 
-print('5')
 
 print()
 print()
