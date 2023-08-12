@@ -40,7 +40,7 @@ parser.add_argument('--ss', default=100, type = int, help='step size')#
 parser.add_argument('--ps', default=2000, type = int, help='plot step')#
 parser.add_argument('--init', default='random', type=str, help='Specify initialisation: random, choice, ...')
 parser.add_argument('--nr', default=0.0, type = float, help='noise ratio')#
-parser.add_argument('--ntest', default=5000, type = int, help='number of testing samples')#
+parser.add_argument('--ntest', default=100, type = int, help='number of testing samples')#
 parser.add_argument('--ntrain', default=1000, type = int, help='number of training samples')#
 parser.add_argument('--bs', default=10, type = int, help='batch_size')#
 
