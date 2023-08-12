@@ -518,7 +518,7 @@ fig = plt.figure(figsize=((5+2)*4, 5))
 
 fig.suptitle(r"Plot of $-\nabla \cdot (a(s) \nabla u(s)) = f(s), \partial \Omega = 0$ with $u|_{\partial \Omega}  = 0.$")
 
-colourMap = parula() #plt.cm.jet #plt.cm.coolwarm
+colourMap = plt.cm.magma#parula() #plt.cm.jet #plt.cm.coolwarm
 
 plt.subplot(1, 4, 1)
 plt.xlabel('x')#, fontsize=16, labelpad=15)
@@ -545,7 +545,7 @@ plt.subplot(1, 4, 4)
 plt.xlabel('x')#, fontsize=16, labelpad=15)
 plt.ylabel('y')#, fontsize=16, labelpad=15)
 plt.title("Truth-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(Y_NO, Y_FDM).item(), 3)))
-plt.imshow(np.abs(Y_FDM - Y_NO), cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+plt.imshow(np.abs(Y_FDM - Y_NO), cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#)#, vmin=0, vmax=1, )
 plt.colorbar()#format=OOMFormatter(-5))
 
 plt.savefig(directory_figs + '/compare'+ModelInfos+'.png',dpi=500)
