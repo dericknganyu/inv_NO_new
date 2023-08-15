@@ -507,17 +507,17 @@ for samp in range(ntest):
 
 
     # list_pb     = ['poisson', 'darcyPWC', 'navierStokes', 'structuralMechanics', 'helmholtz']
-    list_models =                          [ 'fno', 'pino', 'ufno', 'mwt' , 'pcann', 'pcalin']
+    list_models =                       [ 'fno', 'pino', 'ufno', 'mwt' , 'pcann', 'pcalin']
 
 
-    dict_alpha  = {'poisson'             : [2.5e-1, 5.0e-2, 5.0e-2, 5.0e-2,  5.0e-2, 2.5e-2],
+    dict_alpha  = {'poisson'          : [2.5e-1, 5.0e-2, 5.0e-2, 5.0e-2,  5.0e-2, 2.5e-2],
                 'darcyPWC'            : [2.5e-2, 5.0e-3, 5.0e-3, 5.0e-3,  5.0e-3, 1.0e-3],
                 'navierStokes'        : [5.0e-5, m.nan , 5     , 5     ,  m.nan , m.nan ],
                 'structuralMechanics' : [2.5e-1, m.nan , 2.5e-2, 1.0e-1,  m.nan , m.nan ],
                 'helmholtz'           : [5.0e-1, m.nan , 1     , 1     ,  m.nan , m.nan ]}
 
 
-    dict_wd     = {'poisson'             : [0     , 0     , 0     , 0     ,  5.0e-4, 1.0e-5],
+    dict_wd     = {'poisson'          : [0     , 0     , 0     , 0     ,  5.0e-4, 1.0e-5],
                 'darcyPWC'            : [0     , 0     , 0     , 0     ,  1.0e-4, 1.0e-3],
                 'navierStokes'        : [1.0e-4, m.nan , 0     , 0     ,  m.nan , m.nan ],
                 'structuralMechanics' : [1.0e-4, m.nan , 1.0e-5, 5.0e-5,  m.nan , m.nan ],

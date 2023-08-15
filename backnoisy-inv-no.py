@@ -349,14 +349,14 @@ for ep in range(epochs):
         optimizer.step()
 
         if no == 'mwt':
-            print("Returning to orignial resolution to get test error based on it")
+            #print("Returning to orignial resolution to get test error based on it")
             out = CubicSpline3D(out.detach().cpu().numpy(), old_res, old_res)
             out = torch.from_numpy(out).float().to(device)
             y   = CubicSpline3D(y.detach().cpu().numpy(), old_res, old_res)
             y   = torch.from_numpy(y).float().to(device)
 
         if no == 'pcalin' or no == 'pcann':
-            print("Returning to orignial resolution to get test error based on it")
+            #print("Returning to orignial resolution to get test error based on it")
             out = pcaY.inverse_transform(out.detach().cpu().numpy())
             out = torch.from_numpy(out).float().to(device)
 
@@ -387,14 +387,14 @@ for ep in range(epochs):
             out = y_normalizer.decode(out)
 
             if no == 'mwt':
-                print("Returning to orignial resolution to get test error based on it")
+                #print("Returning to orignial resolution to get test error based on it")
                 out = CubicSpline3D(out.detach().cpu().numpy(), old_res, old_res)
                 out = torch.from_numpy(out).float().to(device)
                 y   = CubicSpline3D(y.detach().cpu().numpy(), old_res, old_res)
                 y   = torch.from_numpy(y).float().to(device)
 
             if no == 'pcalin' or no == 'pcann':
-                print("Returning to orignial resolution to get test error based on it")
+                #print("Returning to orignial resolution to get test error based on it")
                 out = pcaY.inverse_transform(out.detach().cpu().numpy())
                 out = torch.from_numpy(out).float().to(device)
 
