@@ -34,8 +34,6 @@ ntrain = 1000
 ntest = 5000
 
 for dataPATH, pcaPATH in zip(listdataPATH , listPCAPATH):
-    if not os.path.exists(dataPATH):
-        os.makedirs(dataPATH)
     if not os.path.exists(pcaPATH):
         os.makedirs(pcaPATH)
 

@@ -400,6 +400,7 @@ if pb == 'advection':
     pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/advection/UnitGaussianNormalizer/'
 
 
+add_noise = add_noise1d if pb == 'advection' else add_noise2d
 
 X_TRAIN, Y_TRAIN, _, _ = readtoArray(fileName, 1, 1, Nx = 512, Ny = 512)
 _, Y_TRAIN_noisy, _, _      = add_noise(fileName, noise_ratio)

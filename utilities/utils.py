@@ -5,6 +5,7 @@ import h5py
 import sklearn.metrics
 import torch.nn as nn
 from scipy.ndimage import gaussian_filter
+from scipy.interpolate import CubicSpline
 
 from prettytable import PrettyTable
 
@@ -139,6 +140,89 @@ def plot_comparism(pb, no, noise_ratio, out_masked, yout, X_train, Y_train_noisy
     plt.title(r"$|u(s) - \hat u(s)|$, RelL2Err = "+str(round(myloss.rel_single(Y_learned[0], Y_train[0]).item(), 3)))
     plt.imshow(np.abs(Y_learned[0] - Y_train[0]), cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#)#, vmin=0, vmax=1, )
     plt.colorbar()#format=OOMFormatter(-5))
+
+    directory = ResultsDir +'figures/'+pb+'/noiseRatio=%s'%(noise_ratio)+'/'+no
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    plt.savefig(directory+'/compare'+ModelInfos+'.png',dpi=500)
+
+
+def plot_comparism1d(pb, no, noise_ratio, out_masked, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy, ResultsDir=''):
+    params = dict()
+    params["xmin"], params["xmax"], params["ymin"], params["ymax"] = 0, 1, 0, 1
+        
+    X_learned = out_masked.reshape(num_samp, res).detach().cpu().numpy()
+    Y_learned = yout.reshape(num_samp, res).detach().cpu().numpy()
+
+    accuracy = 100*np.sum(out_masked.flatten() == X_train.flatten())/len(out_masked.flatten())
+
+    print("   Ploting comparism of FDM and %s-%s Simulation results"%(no, pb))
+    fig = plt.figure(figsize=((5+1)*3, (5)*3))
+    fig.set_tight_layout(True)
+
+
+
+    plt.subplot(3, 3, 1)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title(r"Parameter, $\lambda(s)$")
+    plt.plot(X_train[0])
+
+    plt.subplot(3, 3, 2)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title(r"Learned Parameter, $\hat \lambda(s)$")
+    plt.plot(X_learned[0])
+
+    if pb == 'darcyPWC':
+        title = r"$|\lambda(s) - \hat \lambda(s)|$, RelL2Err = %.4f, Acc = %.2f %%"%(myloss.rel_single(X_learned[0], X_train[0]).item(), accuracy)
+    else:
+        title = r"$|\lambda(s) - \hat \lambda(s)|$, RelL2Err = %.4f"%(myloss.rel_single(X_learned[0], X_train[0]).item())
+
+    plt.subplot(3, 3, 3)
+    plt.yscale('log')
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title(title)
+    plt.plot(np.abs(X_learned[0] - X_train[0]))
+
+    plt.subplot(3, 3, 4)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title(r"Noisy Solution, $\tilde u(s)$")
+    plt.plot(Y_train_noisy[0])
+
+    plt.subplot(3, 3, 5)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title(r"Learned Solution, $\hat u(s)$")
+    plt.plot(Y_learned[0])
+
+    plt.subplot(3, 3, 6)
+    plt.yscale('log')
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title(r"$|\tilde u(s) - \hat u(s)|$, RelL2Err = "+str(round(myloss.rel_single(Y_learned[0], Y_train_noisy[0]).item(), 3)))
+    plt.plot(np.abs(Y_learned[0]) - Y_train_noisy[0])
+
+    plt.subplot(3, 3, 7)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Solution, $u(s)$")
+    plt.plot(Y_train[0])
+
+    plt.subplot(3, 3, 8)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title(r"Learned Solution, $\hat u(s)$")
+    plt.plot(Y_learned[0])
+
+    plt.subplot(3, 3, 9)
+    plt.yscale('log')
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title(r"$|u(s) - \hat u(s)|$, RelL2Err = "+str(round(myloss.rel_single(Y_learned[0], Y_train[0]).item(), 3)))
+    plt.plot(np.abs(Y_learned[0] - Y_train[0]))
 
     directory = ResultsDir +'figures/'+pb+'/noiseRatio=%s'%(noise_ratio)+'/'+no
     if not os.path.exists(directory):
@@ -408,7 +492,19 @@ def SubSample1D(A, nx):
             return A
     else:
         raise ValueError("The array cannot be downsampled to the requested shape")
+    
+def CubicSpline2D(A, nx):
+    _, Nx = A.shape
+    if Nx==nx:
+        return A
+    else:
+        x0 = np.linspace(0, 1, Nx)
+        x  = np.linspace(0, 1, nx)
 
+        cs = CubicSpline(x0, A, axis=1)
+        
+        return cs(x)
+    
 def CubicSpline3D(A, ny, nx):
     batch, Ny, Nx = A.shape
     Ny = Ny-1

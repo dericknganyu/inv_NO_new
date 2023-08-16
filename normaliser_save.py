@@ -17,7 +17,7 @@ dataPathNavierS   = "../../../../../../localdata/Derick/stuart_data/Darcy_421/Na
 dataPathStructM   = "../../../../../../localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
 dataPathHelmholtz = "../../../../../../localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
 dataPathAdvection = "../../../../../../localdata/Derick/stuart_data/Darcy_421/Advection_TrainData=1000_TestData=5000_Resolution=200_Domain=[0,1].hdf5"
-listdataPATH      = [dataPathStructM, dataPathHelmholtz, dataPathNavierS]#, dataPathAdvection]#[dataPathDarcyPWC, dataPATHpoisson, dataPathDarcyLN]
+listdataPATH      = [dataPathAdvection]#dataPathStructM, dataPathHelmholtz, dataPathNavierS]#, [dataPathDarcyPWC, dataPATHpoisson, dataPathDarcyLN]
 
 normPATHpoisson   = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/poisson/UnitGaussianNormalizer/'
 normPATHDarcyPWC  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyPWC/UnitGaussianNormalizer/'
@@ -26,12 +26,14 @@ normPathNavierS   = '../../../../../../localdata/Derick/stuart_data/Darcy_421/op
 normPathStructM   = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
 normPathHelmholtz = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
 normPathAdvection = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/advection/UnitGaussianNormalizer/'
-listNORMPATH      = [normPathStructM, normPathHelmholtz, normPathNavierS]#, normPathAdvection]#[normPATHDarcyPWC, normPATHpoisson, normPATHDarcyLN]
+listNORMPATH      = [normPathAdvection]#normPathStructM, normPathHelmholtz, normPathNavierS]#, [normPATHDarcyPWC, normPATHpoisson, normPATHDarcyLN]
 
 ntrain = 1000
 ntest = 5000
 
 for dataPATH, normPATH in zip(listdataPATH , listNORMPATH):
+    if not os.path.exists(normPATH):
+        os.makedirs(normPATH)
     if dataPATH == dataPathNavierS:
         res1 = 64
         reslist = [res1-1]
@@ -40,6 +42,9 @@ for dataPATH, normPATH in zip(listdataPATH , listNORMPATH):
         reslist = [res1-1]
     elif dataPATH == dataPathHelmholtz: 
         res1 = 101
+        reslist = [res1-1]
+    elif dataPATH == dataPathAdvection: 
+        res1 = 200
         reslist = [res1-1]
     else:
         res1 = 512
@@ -57,21 +62,41 @@ for dataPATH, normPATH in zip(listdataPATH , listNORMPATH):
         res = res + 1
         print ("Subsampling dataset to the required resolution.", res)
         tt = time.time()
-        X_train = SubSample(X_train0, res, res)
-        Y_train = SubSample(Y_train0, res, res)
-        print ("    Subsampling completed after %.4f seconds"%(time.time()-tt))
 
-        new_res = closest_power(res)
-        X_train_cs = CubicSpline3D(X_train, new_res, new_res)
-        Y_train_cs = CubicSpline3D(Y_train, new_res, new_res)
+        if dataPATH == dataPathAdvection: 
+            X_train = SubSample1D(X_train0, res)
+            Y_train = SubSample1D(Y_train0, res)
+            print ("    Subsampling completed after %.4f seconds"%(time.time()-tt))
 
-        print ("Taking out the required train/test size.")
-        tt = time.time()
-        x_train = torch.from_numpy(X_train[:ntrain, :, :]).float()
-        y_train = torch.from_numpy(Y_train[:ntrain, :, :]).float()
+            new_res = closest_power(res)
+            X_train_cs = CubicSpline2D(X_train, new_res)
+            Y_train_cs = CubicSpline2D(Y_train, new_res)
 
-        x_train_cs = torch.from_numpy(X_train_cs[:ntrain, :, :]).float()
-        y_train_cs = torch.from_numpy(Y_train_cs[:ntrain, :, :]).float()
+            print ("Taking out the required train/test size.")
+            tt = time.time()
+            x_train = torch.from_numpy(X_train[:ntrain, :]).float()
+            y_train = torch.from_numpy(Y_train[:ntrain, :]).float()
+
+            x_train_cs = torch.from_numpy(X_train_cs[:ntrain, :]).float()
+            y_train_cs = torch.from_numpy(Y_train_cs[:ntrain, :]).float()
+
+        else:
+            X_train = SubSample(X_train0, res, res)
+            Y_train = SubSample(Y_train0, res, res)
+            print ("    Subsampling completed after %.4f seconds"%(time.time()-tt))
+
+            new_res = closest_power(res)
+            X_train_cs = CubicSpline3D(X_train, new_res, new_res)
+            Y_train_cs = CubicSpline3D(Y_train, new_res, new_res)
+
+            print ("Taking out the required train/test size.")
+            tt = time.time()
+            x_train = torch.from_numpy(X_train[:ntrain, :, :]).float()
+            y_train = torch.from_numpy(Y_train[:ntrain, :, :]).float()
+
+            x_train_cs = torch.from_numpy(X_train_cs[:ntrain, :, :]).float()
+            y_train_cs = torch.from_numpy(Y_train_cs[:ntrain, :, :]).float()
+    
         print ("    Taking completed after %.4f seconds"%(time.time()-tt))
         print("...")
 

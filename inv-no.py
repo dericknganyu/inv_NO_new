@@ -94,6 +94,10 @@ if no == 'fno':
     if pb == 'structuralMechanics':
         res = 41
         MODELS = {40:'/home/derick/Documents/FNO/structural_mechanics/main/files/last_model_041~res_0.069594~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230714-122957.pt'}
+    if pb == 'advection':
+        model = FNO1d(modes, width).cuda()
+        res = 200
+        MODELS = {199:'/home/derick/Documents/FNO/advenction/main/files/last_model_200~res_0.147887~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230714-170606.pt'}
     saved_model = MODELS[res-1]
 
 
@@ -132,6 +136,10 @@ if no == 'pino':
     if pb == 'structuralMechanics':
         res = 41
         MODELS = {40:''}
+    # if pb == 'advection':
+    #     model = UFNO1d(modes, width).cuda()
+    #     res = 200
+    #     MODELS = {199:''}
     saved_model = MODELS[res-1]
 
 if no == 'ufno':
@@ -170,6 +178,10 @@ if no == 'ufno':
     
     padding = round_to_multiple(res, 2**3, direction='up') - res 
     model = UFNO2d_modif(modes, modes, width, padding).cuda()
+    if pb == 'advection':
+        model = UFNO1d(modes, width).cuda()
+        res = 200
+        MODELS = {199:'/home/derick/Documents/U-FNO/advection/files/last_model_200~res_0.146643~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230721-125545.pt'}
     saved_model = MODELS[res-1]
 
 
@@ -215,6 +227,19 @@ if no == 'mwt':
     if pb == 'structuralMechanics':
         res = 41
         MODELS = {40:'/home/derick/Documents/MWT/structural_mechanics/files/last_model_cs_041~res_0.056396~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230717-193923.pt'}
+    if pb == 'advection':
+        ich = 1
+        model = MWT1d(ich, 
+                    alpha = 10, #12,
+                    c = 4*4, #4,
+                    k = 4, 
+                    base = 'legendre', # 'chebyshev'
+                    nCZ = 2, #4,
+                    #L = 0,
+                    initializer = initializer,
+                    ).to(device)
+        res = 200
+        MODELS = {199:'/home/derick/Documents/MWT/advection/files/last_model_cs_200~res_0.126909~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230717-213732.pt'}
     saved_model = MODELS[res-1]
 
 if no == "pcalin":
@@ -284,8 +309,8 @@ if no == "pcalin":
         params = {}
         params["layers"] = [dX , dY]
         model = pcalin(params).cuda()
-        res = 64
-        MODELS = {63:'/home/derick/Documents/PCANN/advection/pcalin/models/last_model_200~res_0.04685~RelL2TestError_30~rd_1000~ntrain_5000~ntest_1000~BatchSize_0.01~LR_0.015~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-213455-533597.pt'}
+        res = 200
+        MODELS = {199:'/home/derick/Documents/PCANN/advection/pcalin/models/last_model_200~res_0.04685~RelL2TestError_30~rd_1000~ntrain_5000~ntest_1000~BatchSize_0.01~LR_0.015~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-213455-533597.pt'}
     saved_model = MODELS[res-1]
 
 if no == "pcann":
@@ -346,8 +371,8 @@ if no == "pcann":
         dY = 30
         p_drop = 0
         model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
-        res = 64
-        MODELS = {63:'/home/derick/Documents/PCANN/advection/pcann/models/last_model_sgd_200~res_0.063813~RelL2TestError_30~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230815-133824-712920.pt'}
+        res = 200
+        MODELS = {199:'/home/derick/Documents/PCANN/advection/pcann/models/last_model_sgd_200~res_0.063813~RelL2TestError_30~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230815-133824-712920.pt'}
     saved_model = MODELS[res-1]
 
 
@@ -410,16 +435,23 @@ if pb == 'advection':
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/advection/UnitGaussianNormalizer/'
     pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/advection/UnitGaussianNormalizer/'
 
+add_noise = add_noise1d if pb == 'advection' else add_noise2d
 
 X_train, Y_train, X_test, Y_test = readtoArray(fileName, 1, 1, Nx = 512, Ny = 512)
 _, Y_train_noisy, _, _      = add_noise(fileName, noise_ratio)
 
 print ("Converting dataset to numpy array and subsamping.")
 tt = time.time()
-X_train = SubSample(np.array(X_train), res, res)
-Y_train = SubSample(np.array(Y_train), res, res)
-X_test  = SubSample(np.array(X_test ), res, res)
-Y_train_noisy = SubSample(np.array(Y_train_noisy), res, res)
+if pb != 'advection':
+    X_train       = SubSample(np.array(X_train), res, res)
+    Y_train       = SubSample(np.array(Y_train), res, res)
+    X_test        = SubSample(np.array(X_test ), res, res)
+    Y_train_noisy = SubSample(np.array(Y_train_noisy), res, res)
+else:
+    X_train       = SubSample1D(np.array(X_train), res) 
+    Y_train       = SubSample1D(np.array(Y_train), res) 
+    X_test        = SubSample1D(np.array(X_test ), res) 
+    Y_train_noisy = SubSample1D(np.array(Y_train_noisy), res) 
 print ("    Conversion completed after %.2f minutes"%((time.time()-tt)/60))
 
 ntrain = 1000
@@ -433,16 +465,29 @@ y_noisy = torch.from_numpy(Y_train_noisy).float().cuda()
 if no == 'mwt':
     old_res = res
     res = closest_power(res)
-    X_train0 = CubicSpline3D(X_train, res, res)
-    Y_train0 = CubicSpline3D(Y_train, res, res)
-    Y_train0_noisy = CubicSpline3D(Y_train_noisy, res, res)
+    if pb != 'advection':
+        X_train0 = CubicSpline3D(X_train, res, res)
+        Y_train0 = CubicSpline3D(Y_train, res, res)
+        Y_train0_noisy = CubicSpline3D(Y_train_noisy, res, res)
 
-    grids_mwt = []
-    grids_mwt.append(np.linspace(0, 1, res))
-    grids_mwt.append(np.linspace(0, 1, res))
-    grid_mwt = np.vstack([xx.ravel() for xx in np.meshgrid(*grids_mwt)]).T
-    grid_mwt = grid_mwt.reshape(1,res,res,2)
-    grid_mwt = torch.tensor(grid_mwt, dtype=torch.float).cuda()
+        grids_mwt = []
+        grids_mwt.append(np.linspace(0, 1, res))
+        grids_mwt.append(np.linspace(0, 1, res))
+        grid_mwt = np.vstack([xx.ravel() for xx in np.meshgrid(*grids_mwt)]).T
+        grid_mwt = grid_mwt.reshape(1,res,res,2)
+        grid_mwt = torch.tensor(grid_mwt, dtype=torch.float).cuda()
+    else:
+        X_train0 = CubicSpline2D(X_train, res)
+        Y_train0 = CubicSpline2D(Y_train, res)
+        Y_train0_noisy = CubicSpline2D(Y_train_noisy, res)
+
+        # grids_mwt = []
+        # grids_mwt.append(np.linspace(0, 1, res))
+        # grids_mwt.append(np.linspace(0, 1, res))
+        # grid_mwt = np.vstack([xx.ravel() for xx in np.meshgrid(*grids_mwt)]).T
+        # grid_mwt = grid_mwt.reshape(1,res,res,2)
+        # grid_mwt = torch.tensor(grid_mwt, dtype=torch.float).cuda()
+
 
     x_normalizer = torch.load(normPATH+"param_normalizer-cs%s-res-%s-ntrain.pt"%(res-1, ntrain)) # UnitGaussianNormalizer(x_train)
     y_normalizer = torch.load(normPATH+"solut_normalizer-cs%s-res-%s-ntrain.pt"%(res-1, ntrain)) # UnitGaussianNormalizer(y_train)
@@ -487,22 +532,8 @@ num_samp = x.size()[0]
 
 #initialisation = 'random' #'random'#
 out_shape = [num_samp,res,res]
-if pb == 'navierStokes':
-    init = 'ones'#'random'#'normal'
-if pb == 'structuralMecahnics':
-    init = 'ones'#'random'#'normal'
-if pb == 'helmholtz':
-    init = 'ones'#'random'#'normal'
-if pb == 'navierStokes':
-    init = 'ones'#'random'#'normal'
-if pb == 'poisson':
-    init = 'ones'#'random'#'normal'
-if pb == 'darcyPWC':
-    init = 'ones'#'choice'
-if pb == 'darcyLN':
-    init = 'ones'#'random'
-if no == 'pcalin' or no == 'pcann':
-    init = 'ones'#'random' #'ones'#'random' #random for darcyPWC and ones for poisson
+init = 'ones'
+if no == 'pcalin' or no == 'pcann' or pb == 'advection':
     out_shape = [num_samp,res]
 
 if init == 'random':
@@ -525,14 +556,16 @@ dict_alpha  = {'poisson'             : [2.5e-1, 5.0e-2, 5.0e-2, 5.0e-2,  5.0e-2,
                'darcyPWC'            : [2.5e-2, 5.0e-3, 5.0e-3, 5.0e-3,  5.0e-3, 1.0e-3],
                'navierStokes'        : [5.0e-5, m.nan , 5     , 5     ,  m.nan , m.nan ],
                'structuralMechanics' : [2.5e-1, m.nan , 2.5e-2, 1.0e-1,  m.nan , m.nan ],
-               'helmholtz'           : [5.0e-1, m.nan , 1     , 1     ,  m.nan , m.nan ]}
+               'helmholtz'           : [5.0e-1, m.nan , 1     , 1     ,  m.nan , m.nan ],
+               'advection'           : [2.5e-2, 5.0e-3, 5.0e-3, 5.0e-3,  5.0e-3, 1.0e-3]}
 
 
 dict_wd     = {'poisson'             : [0     , 0     , 0     , 0     ,  5.0e-4, 1.0e-5],
                'darcyPWC'            : [0     , 0     , 0     , 0     ,  1.0e-4, 1.0e-3],
                'navierStokes'        : [1.0e-4, m.nan , 0     , 0     ,  m.nan , m.nan ],
                'structuralMechanics' : [1.0e-4, m.nan , 1.0e-5, 5.0e-5,  m.nan , m.nan ],
-               'helmholtz'           : [0     , m.nan , 0     , 0     ,  m.nan , m.nan ]}
+               'helmholtz'           : [0     , m.nan , 0     , 0     ,  m.nan , m.nan ],
+               'advection'           : [0     , 0     , 0     , 0     ,  1.0e-4, 1.0e-3]}
 
 df_alpha  = pd.DataFrame(dict_alpha,
                 index = list_models)
@@ -569,12 +602,20 @@ for ep  in range(epochs):
 
     #out_masked = mask(x_learned)
     #out_masked = x_normalizer.encode(out_masked)
-    if no == 'mwt':
-        yout = model(torch.cat([out_masked.reshape(num_samp, res, res, 1), grid_mwt.repeat(num_samp,1,1,1)], dim=3)).reshape(num_samp, res, res)
-    elif no == 'pcalin' or no == 'pcann':
-        yout = model(out_masked)
-    else: #case fno, ufno, pino
-        yout = model(out_masked.reshape(num_samp, res, res, 1)).reshape(num_samp, res, res)
+    if pb != 'advection':
+        if no == 'mwt':
+            yout = model(torch.cat([out_masked.reshape(num_samp, res, res, 1), grid_mwt.repeat(num_samp,1,1,1)], dim=3)).reshape(num_samp, res, res)
+        elif no == 'pcalin' or no == 'pcann':
+            yout = model(out_masked)
+        else: #case fno, ufno, pino
+            yout = model(out_masked.reshape(num_samp, res, res, 1)).reshape(num_samp, res, res)
+    else:
+        if no == 'mwt':
+            yout = model(out_masked.reshape(num_samp, res, 1)).reshape(num_samp, res)
+        elif no == 'pcalin' or no == 'pcann':
+            yout = model(out_masked)
+        else: #case fno, ufno, pino
+            yout = model(out_masked.reshape(num_samp, res, 1)).reshape(num_samp, res)
     
     yout = y_normalizer.decode(yout)
 
@@ -601,8 +642,12 @@ for ep  in range(epochs):
     out_learned = x_normalizer.decode(out_masked)
     
     if no == 'mwt':
-        out_learned = CubicSpline3D(out_learned.detach().cpu().numpy().reshape(num_samp, res, res), old_res, old_res)
-        yout        = CubicSpline3D(yout.detach().cpu().numpy().reshape(num_samp, res, res), old_res, old_res)
+        if pb != 'advection':
+            out_learned = CubicSpline3D(out_learned.detach().cpu().numpy().reshape(num_samp, res, res), old_res, old_res)
+            yout        = CubicSpline3D(       yout.detach().cpu().numpy().reshape(num_samp, res, res), old_res, old_res)
+        else:
+            out_learned = CubicSpline2D(out_learned.detach().cpu().numpy().reshape(num_samp, res), old_res)
+            yout        = CubicSpline2D(       yout.detach().cpu().numpy().reshape(num_samp, res), old_res)            
         out_learned = torch.from_numpy(out_learned).float().to(device)
         yout        = torch.from_numpy(yout).float().to(device)
         x_mwt       = torch.from_numpy(X_train).float().cuda()
@@ -610,25 +655,30 @@ for ep  in range(epochs):
         y_mwt_noisy = torch.from_numpy(Y_train_noisy).float().cuda()
 
     if no == 'pcalin' or no == 'pcann':
-        out_learned = pcaX.inverse_transform(out_learned.detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
-        Yout        = pcaY.inverse_transform(yout       .detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
-        Y           = pcaY.inverse_transform(y          .detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
-        Y_noisy     = pcaY.inverse_transform(y_noisy    .detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
-
-        # if  no == 'pcann':
-        #     out_learned = scalerX.inverse_transform(out_learned.reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
-        #     Yout        = scalerY.inverse_transform(Yout       .reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
-        #     Y           = scalerY.inverse_transform(Y          .reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
-        #     Y_noisy     = scalerY.inverse_transform(Y_noisy    .reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
+        if pb != 'advection':
+            out_learned = pcaX.inverse_transform(out_learned.detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
+            Yout        = pcaY.inverse_transform(yout       .detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
+            Y           = pcaY.inverse_transform(y          .detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
+            Y_noisy     = pcaY.inverse_transform(y_noisy    .detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res, old_res)
+        else:
+            out_learned = pcaX.inverse_transform(out_learned.detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res)
+            Yout        = pcaY.inverse_transform(yout       .detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res)
+            Y           = pcaY.inverse_transform(y          .detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res)
+            Y_noisy     = pcaY.inverse_transform(y_noisy    .detach().cpu().numpy().reshape(num_samp, -1)).reshape(num_samp, old_res)
 
         out_learned = torch.from_numpy(out_learned).float().to(device)
         Y           = torch.from_numpy(Y).float().to(device)
         Yout        = torch.from_numpy(Yout).float().to(device)
         Y_noisy     = torch.from_numpy(Y_noisy).float().to(device)
 
-        X_train = X_train.reshape(num_samp, old_res, old_res)
-        Y_train = Y_train.reshape(num_samp, old_res, old_res)
-        Y_train_noisy = Y_train_noisy.reshape(num_samp, old_res, old_res)
+        if pb != 'advection':
+            X_train = X_train.reshape(num_samp, old_res, old_res)
+            Y_train = Y_train.reshape(num_samp, old_res, old_res)
+            Y_train_noisy = Y_train_noisy.reshape(num_samp, old_res, old_res)
+        else:
+            X_train = X_train.reshape(num_samp, old_res)
+            Y_train = Y_train.reshape(num_samp, old_res)
+            Y_train_noisy = Y_train_noisy.reshape(num_samp, old_res)
 
     if pb == 'darcyPWC':
         mean_out = torch.mean(out_learned)
@@ -713,12 +763,21 @@ for ep  in range(epochs):
     
 
     if ep % plot_step == plot_step - 1 or ep == 0:
-        if no == 'mwt':
-            plot_comparism(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy)
-        elif no == 'pcalin' or no == 'pcann':
-            plot_comparism(pb, no, noise_ratio, out_learned, Yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy)
+        if pb != 'advection':
+            if no == 'mwt':
+                plot_comparism(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy)
+            elif no == 'pcalin' or no == 'pcann':
+                plot_comparism(pb, no, noise_ratio, out_learned, Yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy)
+            else:
+                plot_comparism(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy)
         else:
-            plot_comparism(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy)
+            if no == 'mwt':
+                plot_comparism1d(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy)
+            elif no == 'pcalin' or no == 'pcann':
+                plot_comparism1d(pb, no, noise_ratio, out_learned, Yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy)
+            else:
+                plot_comparism1d(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy)
+        
 
 # directory_figs = 'figures/%s/noiseRatio=%s/%s'%(pb, noise_ratio, no)
 # if not os.path.exists(directory_figs):
@@ -776,10 +835,16 @@ directory_figs = 'figures/%s/noiseRatio=%s/%s'%(pb, noise_ratio, no)
 if not os.path.exists(directory_figs):
     os.makedirs(directory_figs)               
 torch.save(out_learned[0], directory_figs+'/%s-%s-%s-noise-v2.pt'%(pb, no, noise_ratio))
-if no == 'pcalin' or no == 'pcann' or no == 'mwt':
-    out_learned = out_learned.reshape(old_res, old_res).detach().cpu().numpy()
+if pb != 'advection':
+    if no == 'pcalin' or no == 'pcann' or no == 'mwt':
+        out_learned = out_learned.reshape(old_res, old_res).detach().cpu().numpy()
+    else:
+        out_learned = out_learned.reshape(res, res).detach().cpu().numpy()
 else:
-    out_learned = out_learned.reshape(res, res).detach().cpu().numpy()
+    if no == 'pcalin' or no == 'pcann' or no == 'mwt':
+        out_learned = out_learned.reshape(old_res, 1).detach().cpu().numpy()
+    else:
+        out_learned = out_learned.reshape(res, 1).detach().cpu().numpy()
 
 fig = plt.figure(figsize=((6, 5)))
 fig.tight_layout()   
@@ -787,9 +852,12 @@ fig.tight_layout()
 plt.xlabel('x')#, fontsize=16, labelpad=15)
 plt.ylabel('y')#, fontsize=16, labelpad=15)
 #plt.title("FDM approximation")
-colourMap = plt.cm.magma#parula()
-plt.imshow(out_learned, cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#format=OOMFormatter(-5))
+if pb != 'advection':
+    colourMap = plt.cm.magma#parula()
+    plt.imshow(out_learned, cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#format=OOMFormatter(-5))
+else:
+    plt.plot(out_learned)
 plt.savefig(directory_figs+'/%s-%s-%s-noise.png'%(pb, no, noise_ratio),dpi=500)
 
 

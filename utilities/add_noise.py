@@ -7,7 +7,7 @@ import time
 import argparse
 
 
-def add_noise(data, delta, d=2, p=2):
+def add_noise2d(data, delta, d=2, p=2):
     #d, the dimension of the data
     #p, the order of the norm
 
@@ -35,6 +35,35 @@ def add_noise(data, delta, d=2, p=2):
 
     return X_train, Y_train, X_test, Y_test 
 
+def add_noise1d(data, delta, d=2, p=2):
+    #d, the dimension of the data
+    #p, the order of the norm
+
+    if isinstance(data, tuple):
+        X_train, Y_train, X_test, Y_test  = data
+    if isinstance(data, str):
+        X_train, Y_train, X_test, Y_test  = readtoArray(data)
+    if delta == 0:
+        return X_train, Y_train, X_test, Y_test 
+    ntrain, res = np.shape(Y_train)
+    ntest , _   = np.shape(Y_test)
+
+    np.random.seed(0)
+    noise = np.random.normal(size=(ntrain + ntest, res))
+    
+    h = 1/(res -1) #step size
+    norm_train = (h**(d/p))*np.linalg.norm(Y_train, axis=1, ord=p)
+    norm_train  = norm_train.reshape(-1, 1)
+
+    norm_test  = (h**(d/p))*np.linalg.norm(Y_test , axis=1, ord=p) 
+    norm_test  = norm_test.reshape(-1, 1)
+
+    Y_train = Y_train + delta * norm_train * noise[0:ntrain, :]
+    Y_test  = Y_test  + delta * norm_test  * noise[ntrain::, :]
+
+    return X_train, Y_train, X_test, Y_test 
+
+
 if __name__ == '__main__':
     xmin, xmax = 0, 1 #-1, 1
     ymin, ymax = 0, 1 #-1, 1
@@ -50,7 +79,7 @@ if __name__ == '__main__':
     delta = args.delta
     
     X_train, Y_train, X_test, Y_test = readtoArray(data)
-    _, Y_train_noise, _, _      = add_noise(data, delta)
+    _, Y_train_noise, _, _      = add_noise2d(data, delta)
     
     fig = plt.figure(figsize=((5+2)*2, 5))
     
