@@ -241,6 +241,38 @@ if no == "pcalin":
                 128:'',
                 256:'',
                 512:''}
+    if pb == 'navierStokes':
+        dX = 70
+        dY = 70
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
+        res = 64
+        MODELS = {63:'/home/derick/Documents/PCANN/navier_stokes/pcalin/models/last_model_064~res_0.056096~RelL2TestError_70~rd_1000~ntrain_5000~ntest_1000~BatchSize_0.01~LR_0.015~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-194112-328216.pt'}
+    if pb == 'helmholtz':
+        dX = 100
+        dY = 100
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
+        res = 101
+        MODELS = {100:'/home/derick/Documents/PCANN/helmholtz/pcalin/models/last_model_101~res_0.103092~RelL2TestError_100~rd_1000~ntrain_5000~ntest_1000~BatchSize_0.01~LR_0.015~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-133510-093804.pt'}
+    if pb == 'structuralMechanics':
+        dX = 30
+        dY = 30
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
+        res = 41
+        MODELS = {40:'/home/derick/Documents/PCANN/structuralMechanics/pcalin/models/last_model_041~res_0.232298~RelL2TestError_30~rd_1000~ntrain_5000~ntest_1000~BatchSize_0.01~LR_0.015~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-122928-634694.pt'}
+    if pb == 'advection':
+        dX = 30
+        dY = 30
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
+        res = 64
+        MODELS = {63:'/home/derick/Documents/PCANN/advection/pcalin/models/last_model_200~res_0.04685~RelL2TestError_30~rd_1000~ntrain_5000~ntest_1000~BatchSize_0.01~LR_0.015~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-213455-533597.pt'}
     saved_model = MODELS[res-1]
 
 if no == "pcann":
@@ -277,6 +309,34 @@ if no == "pcann":
                 128:'',
                 256:'',
                 512:''}
+    if pb == 'navierStokes':
+        dX = 200
+        dY = 200
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
+        res = 64
+        MODELS = {63:'/home/derick/Documents/PCANN/navier_stokes/pcann/models/last_model_sgd_064~res_0.062773~RelL2TestError_200~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230724-175130-874530.pt'}
+    if pb == 'helmholtz':
+        dX = 70
+        dY = 70
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
+        res = 101
+        MODELS = {100:'/home/derick/Documents/PCANN/helmholtz/pcann/models/last_model_sgd_101~res_0.049789~RelL2TestError_70~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230815-134848-011693.pt'}
+    if pb == 'structuralMechanics':
+        dX = 200
+        dY = 200
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
+        res = 41
+        MODELS = {40:'/home/derick/Documents/PCANN/structuralMechanics/pcann/models/last_model_sgd_041~res_0.060389~RelL2TestError_200~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230815-123943-827358.pt'}
+    if pb == 'advection':
+        dX = 30
+        dY = 30
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
+        res = 64
+        MODELS = {63:'/home/derick/Documents/PCANN/advection/pcann/models/last_model_sgd_200~res_0.063813~RelL2TestError_30~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230815-133824-712920.pt'}
     saved_model = MODELS[res-1]
 
 
@@ -322,17 +382,23 @@ if pb == 'navierStokes':
     fileName = "datasets/NavierStokes_TrainData=1_TestData=1_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
     FILEName = "/localdata/Derick/stuart_data/Darcy_421/NavierStokes_TrainData=1000_TestData=5000_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/navierStokes/UnitGaussianNormalizer/'
-    pcaPATH  = ''
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/navierStokes/UnitGaussianNormalizer/'
 if pb == 'helmholtz': 
     fileName = "datasets/Helmholtz_TrainData=1_TestData=1_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
     FILEName = "/localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
-    pcaPATH  = ''
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/helmholtz/UnitGaussianNormalizer/'
 if pb == 'structuralMechanics': 
     fileName = "datasets/StructuralMechanics_TrainData=1_TestData=1_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
     FILEName = "/localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
-    pcaPATH  = ''
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/structuralMechanics/UnitGaussianNormalizer/'
+if pb == 'advection': 
+    fileName = "/home/derick/Documents/inv_NO_new/datasets/Advection_TrainData=1_TestData=1_Resolution=200_Domain=[0,1].hdf5"
+    FILEName = "../../../../../../localdata/Derick/stuart_data/Darcy_421/Advection_TrainData=1000_TestData=5000_Resolution=200_Domain=[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/advection/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/advection/UnitGaussianNormalizer/'
+
 
 
 X_TRAIN, Y_TRAIN, _, _ = readtoArray(fileName, 1, 1, Nx = 512, Ny = 512)

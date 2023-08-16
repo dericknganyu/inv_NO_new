@@ -389,6 +389,25 @@ def SubSample(A, ny, nx):
             return A
     else:
         raise ValueError("The array cannot be downsampled to the requested shape")
+    
+def SubSample1D(A, nx):
+    _, Nx = A.shape
+    Nx = Nx-1
+    nx = nx-1
+
+    if Nx%nx==0:
+        if Nx==nx:
+            return A
+        else:
+            stepx = Nx//nx
+
+            idx = np.arange(0, Nx+1, stepx)
+            
+            A = A[:, idx]
+
+            return A
+    else:
+        raise ValueError("The array cannot be downsampled to the requested shape")
 
 def CubicSpline3D(A, ny, nx):
     batch, Ny, Nx = A.shape

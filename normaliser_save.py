@@ -10,21 +10,23 @@ torch.manual_seed(0)
 np.random.seed(0)
 
 
-dataPATHpoisson  = "../../../../../../localdata/Derick/stuart_data/Darcy_421/fUG_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-dataPathDarcyPWC = "../../../../../../localdata/Derick/stuart_data/Darcy_421/new_aUP_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-dataPathDarcyLN  = "../../../../../../localdata/Derick/stuart_data/Darcy_421/aUL_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-dataPathNavierS  = "../../../../../../localdata/Derick/stuart_data/Darcy_421/NavierStokes_TrainData=1000_TestData=5000_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
-dataPathStructM  = "../../../../../../localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
-dataPathHelmhol  = "../../../../../../localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
-listdataPATH     = [dataPathStructM, dataPathHelmhol]#[dataPathDarcyPWC, dataPATHpoisson, dataPathDarcyLN, dataPathNavierS]
+dataPATHpoisson   = "../../../../../../localdata/Derick/stuart_data/Darcy_421/fUG_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+dataPathDarcyPWC  = "../../../../../../localdata/Derick/stuart_data/Darcy_421/new_aUP_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+dataPathDarcyLN   = "../../../../../../localdata/Derick/stuart_data/Darcy_421/aUL_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+dataPathNavierS   = "../../../../../../localdata/Derick/stuart_data/Darcy_421/NavierStokes_TrainData=1000_TestData=5000_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
+dataPathStructM   = "../../../../../../localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
+dataPathHelmholtz = "../../../../../../localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
+dataPathAdvection = "../../../../../../localdata/Derick/stuart_data/Darcy_421/Advection_TrainData=1000_TestData=5000_Resolution=200_Domain=[0,1].hdf5"
+listdataPATH      = [dataPathStructM, dataPathHelmholtz, dataPathNavierS]#, dataPathAdvection]#[dataPathDarcyPWC, dataPATHpoisson, dataPathDarcyLN]
 
-normPATHpoisson  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/poisson/UnitGaussianNormalizer/'
-normPATHDarcyPWC = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyPWC/UnitGaussianNormalizer/'
-normPATHDarcyLN  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyLN/UnitGaussianNormalizer/'
-normPathNavierS  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/navierStokes/UnitGaussianNormalizer/'
-normPathStructM  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
-normPathHelmhol  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
-listNORMPATH     = [normPathStructM, normPathHelmhol]#[normPATHDarcyPWC, normPATHpoisson, normPATHDarcyLN, normPathNavierS]
+normPATHpoisson   = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/poisson/UnitGaussianNormalizer/'
+normPATHDarcyPWC  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyPWC/UnitGaussianNormalizer/'
+normPATHDarcyLN   = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyLN/UnitGaussianNormalizer/'
+normPathNavierS   = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/navierStokes/UnitGaussianNormalizer/'
+normPathStructM   = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
+normPathHelmholtz = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
+normPathAdvection = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/advection/UnitGaussianNormalizer/'
+listNORMPATH      = [normPathStructM, normPathHelmholtz, normPathNavierS]#, normPathAdvection]#[normPATHDarcyPWC, normPATHpoisson, normPATHDarcyLN]
 
 ntrain = 1000
 ntest = 5000
@@ -36,7 +38,7 @@ for dataPATH, normPATH in zip(listdataPATH , listNORMPATH):
     elif dataPATH == dataPathStructM: 
         res1 = 41
         reslist = [res1-1]
-    elif dataPATH == dataPathHelmhol: 
+    elif dataPATH == dataPathHelmholtz: 
         res1 = 101
         reslist = [res1-1]
     else:
