@@ -1,6 +1,4 @@
-figures
-figures*
-files
+figure*
 files*
 datasets
 files
@@ -9,4 +7,6 @@ script.py
 .png
 .txt
 .pt
+plots.ipynb
+
 
