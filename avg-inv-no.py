@@ -96,8 +96,6 @@ if no == 'fno':
         MODELS = {40:'/home/derick/Documents/FNO/structural_mechanics/main/files/last_model_041~res_0.069594~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230714-122957.pt'}
     saved_model = MODELS[res-1]
 
-
-
 if no == 'pino':
     modes = 12
     width = 32
@@ -123,20 +121,12 @@ if no == 'pino':
                 128:'',
                 256:'',
                 512:''}
-    if pb == 'navierStokes':
-        res = 64
-        MODELS = {63:''}
-    if pb == 'helmholtz':
-        res = 101
-        MODELS = {100:''}
-    if pb == 'structuralMechanics':
-        res = 41
-        MODELS = {40:''}
     saved_model = MODELS[res-1]
 
 if no == 'ufno':
     modes = 12
     width = 32
+    model = UFNO2d(modes, modes, width).cuda()
     if pb == 'darcyPWC':
         MODELS = {16:'/home/derick/Documents/U-FNO/darcy_flow_mu_P/files/last_model_017~res_0.028659~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20220723-003010.pt',
                 32:'/home/derick/Documents/U-FNO/darcy_flow_mu_P/files/last_model_033~res_0.014182~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20220723-002449.pt',
@@ -255,14 +245,37 @@ if no == "pcalin":
                 256:'',
                 512:''}
     if pb == 'navierStokes':
+        dX = 70
+        dY = 70
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
         res = 64
-        MODELS = {63:''}
+        MODELS = {63:'/home/derick/Documents/PCANN/navier_stokes/pcalin/models/last_model_064~res_0.056096~RelL2TestError_70~rd_1000~ntrain_5000~ntest_1000~BatchSize_0.01~LR_0.015~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-194112-328216.pt'}
     if pb == 'helmholtz':
+        dX = 100
+        dY = 100
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
         res = 101
-        MODELS = {100:''}
+        MODELS = {100:'/home/derick/Documents/PCANN/helmholtz/pcalin/models/last_model_101~res_0.103092~RelL2TestError_100~rd_1000~ntrain_5000~ntest_1000~BatchSize_0.01~LR_0.015~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-133510-093804.pt'}
     if pb == 'structuralMechanics':
+        dX = 30
+        dY = 30
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
         res = 41
-        MODELS = {40:''}
+        MODELS = {40:'/home/derick/Documents/PCANN/structuralMechanics/pcalin/models/last_model_041~res_0.232298~RelL2TestError_30~rd_1000~ntrain_5000~ntest_1000~BatchSize_0.01~LR_0.015~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-122928-634694.pt'}
+    if pb == 'advection':
+        dX = 30
+        dY = 30
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
+        res = 64
+        MODELS = {63:'/home/derick/Documents/PCANN/advection/pcalin/models/last_model_200~res_0.04685~RelL2TestError_30~rd_1000~ntrain_5000~ntest_1000~BatchSize_0.01~LR_0.015~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-213455-533597.pt'}
     saved_model = MODELS[res-1]
 
 if no == "pcann":
@@ -300,14 +313,33 @@ if no == "pcann":
                 256:'',
                 512:''}
     if pb == 'navierStokes':
+        dX = 200
+        dY = 200
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
         res = 64
-        MODELS = {63:''}
+        MODELS = {63:'/home/derick/Documents/PCANN/navier_stokes/pcann/models/last_model_sgd_064~res_0.062773~RelL2TestError_200~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230724-175130-874530.pt'}
     if pb == 'helmholtz':
+        dX = 70
+        dY = 70
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
         res = 101
-        MODELS = {100:''}
+        MODELS = {100:'/home/derick/Documents/PCANN/helmholtz/pcann/models/last_model_sgd_101~res_0.049789~RelL2TestError_70~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230815-134848-011693.pt'}
     if pb == 'structuralMechanics':
+        dX = 200
+        dY = 200
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
         res = 41
-        MODELS = {40:''}
+        MODELS = {40:'/home/derick/Documents/PCANN/structuralMechanics/pcann/models/last_model_sgd_041~res_0.060389~RelL2TestError_200~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230815-123943-827358.pt'}
+    if pb == 'advection':
+        dX = 30
+        dY = 30
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
+        res = 64
+        MODELS = {63:'/home/derick/Documents/PCANN/advection/pcann/models/last_model_sgd_200~res_0.063813~RelL2TestError_30~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230815-133824-712920.pt'}
     saved_model = MODELS[res-1]
 
 
@@ -353,17 +385,22 @@ if pb == 'navierStokes':
     #fileName = "datasets/NavierStokes_TrainData=1_TestData=1_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
     fileName = "/localdata/Derick/stuart_data/Darcy_421/NavierStokes_TrainData=1000_TestData=5000_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/navierStokes/UnitGaussianNormalizer/'
-    pcaPATH  = ''
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/navierStokes/UnitGaussianNormalizer/'
 if pb == 'helmholtz': 
     #fileName = "datasets/Helmholtz_TrainData=1_TestData=1_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
     fileName = "/localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
-    pcaPATH  = ''
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/helmholtz/UnitGaussianNormalizer/'
 if pb == 'structuralMechanics': 
     #fileName = "datasets/StructuralMechanics_TrainData=1_TestData=1_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
     fileName= "/localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
-    pcaPATH  = ''
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/structuralMechanics/UnitGaussianNormalizer/'
+if pb == 'advection': 
+    #fileName = "datasets/Advection_TrainData=1_TestData=1_Resolution=200_Domain=[0,1].hdf5"
+    fileName = "/localdata/Derick/stuart_data/Darcy_421/Advection_TrainData=1000_TestData=5000_Resolution=200_Domain=[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/advection/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/advection/UnitGaussianNormalizer/'
 
 _, _, X_TRAIN, Y_TRAIN = readtoArray(fileName, 1, 1, Nx = 512, Ny = 512)
 
@@ -380,6 +417,7 @@ print ("    Conversion completed after %.2f minutes"%((time.time()-tt)/60))
 print ("Adding noise.")
 tt = time.time()
 useless = np.zeros((1, res, res))#Y_TRAIN[ :2, :, :]
+add_noise = add_noise1d if pb == 'advection' else add_noise2d
 _, _, _, Y_TRAIN_noisy = add_noise((useless, useless, useless, Y_TRAIN), noise_ratio)
 
 print ("    Adding noise completed after %.2f minutes"%((time.time()-tt)/60))
@@ -512,16 +550,18 @@ for samp in range(ntest):
 
     dict_alpha  = {'poisson'          : [2.5e-1, 5.0e-2, 5.0e-2, 5.0e-2,  5.0e-2, 2.5e-2],
                 'darcyPWC'            : [2.5e-2, 5.0e-3, 5.0e-3, 5.0e-3,  5.0e-3, 1.0e-3],
-                'navierStokes'        : [5.0e-5, m.nan , 5     , 5     ,  m.nan , m.nan ],
-                'structuralMechanics' : [2.5e-1, m.nan , 2.5e-2, 1.0e-1,  m.nan , m.nan ],
-                'helmholtz'           : [5.0e-1, m.nan , 1     , 1     ,  m.nan , m.nan ]}
+                'navierStokes'        : [5.0e-5, m.nan , 5     , 5     ,  5.0e-0, 5.0e-3],
+                'structuralMechanics' : [2.5e-1, m.nan , 2.5e-2, 1.0e-1,  5.0e-4, 0.0e-0],
+                'helmholtz'           : [5.0e-1, m.nan , 1     , 1     ,  2.5e-3, 1.0e-2],
+                'advection'           : [m.nan , m.nan , m.nan , m.nan ,  m.nan , m.nan ]}
 
 
     dict_wd     = {'poisson'          : [0     , 0     , 0     , 0     ,  5.0e-4, 1.0e-5],
                 'darcyPWC'            : [0     , 0     , 0     , 0     ,  1.0e-4, 1.0e-3],
-                'navierStokes'        : [1.0e-4, m.nan , 0     , 0     ,  m.nan , m.nan ],
-                'structuralMechanics' : [1.0e-4, m.nan , 1.0e-5, 5.0e-5,  m.nan , m.nan ],
-                'helmholtz'           : [0     , m.nan , 0     , 0     ,  m.nan , m.nan ]}
+                'navierStokes'        : [1.0e-4, m.nan , 0     , 0     ,  1.0e-5, 2.5e-3],
+                'structuralMechanics' : [1.0e-4, m.nan , 1.0e-5, 5.0e-5,  2.5e-4, 2.5e-3],
+                'helmholtz'           : [0     , m.nan , 0     , 0     ,  1.0e-6, 2.5e-3],
+                'advection'           : [m.nan , m.nan , m.nan , m.nan ,  m.nan , m.nan ]}
 
     df_alpha  = pd.DataFrame(dict_alpha,
                     index = list_models)

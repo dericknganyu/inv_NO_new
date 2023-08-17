@@ -364,6 +364,8 @@ if no == "pcann":
     if pb == 'structuralMechanics':
         dX = 200
         dY = 200
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
         res = 41
         MODELS = {40:'/home/derick/Documents/PCANN/structuralMechanics/pcann/models/last_model_sgd_041~res_0.060389~RelL2TestError_200~rd_0~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.000000500~LR_0.1000~Reg_0.5000~gamma_2000~Step_20000~epochs_20230815-123943-827358.pt'}
     if pb == 'advection':
@@ -430,7 +432,7 @@ if pb == 'structuralMechanics':
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
     pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/structuralMechanics/UnitGaussianNormalizer/'
 if pb == 'advection': 
-    fileName = "/home/derick/Documents/inv_NO_new/datasets/Advection_TrainData=1_TestData=1_Resolution=200_Domain=[0,1].hdf5"
+    fileName = "datasets/Advection_TrainData=1_TestData=1_Resolution=200_Domain=[0,1].hdf5"
     FILEName = "../../../../../../localdata/Derick/stuart_data/Darcy_421/Advection_TrainData=1000_TestData=5000_Resolution=200_Domain=[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/advection/UnitGaussianNormalizer/'
     pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/advection/UnitGaussianNormalizer/'
@@ -554,18 +556,18 @@ list_models =                          [ 'fno', 'pino', 'ufno', 'mwt' , 'pcann',
 
 dict_alpha  = {'poisson'             : [2.5e-1, 5.0e-2, 5.0e-2, 5.0e-2,  5.0e-2, 2.5e-2],
                'darcyPWC'            : [2.5e-2, 5.0e-3, 5.0e-3, 5.0e-3,  5.0e-3, 1.0e-3],
-               'navierStokes'        : [5.0e-5, m.nan , 5     , 5     ,  m.nan , m.nan ],
-               'structuralMechanics' : [2.5e-1, m.nan , 2.5e-2, 1.0e-1,  m.nan , m.nan ],
-               'helmholtz'           : [5.0e-1, m.nan , 1     , 1     ,  m.nan , m.nan ],
-               'advection'           : [2.5e-2, 5.0e-3, 5.0e-3, 5.0e-3,  5.0e-3, 1.0e-3]}
+               'navierStokes'        : [5.0e-5, m.nan , 5     , 5     ,  5.0e-0, 5.0e-3],
+               'structuralMechanics' : [2.5e-1, m.nan , 2.5e-2, 1.0e-1,  5.0e-4, 0.0e-0],
+               'helmholtz'           : [5.0e-1, m.nan , 1     , 1     ,  2.5e-3, 1.0e-2],
+               'advection'           : [m.nan , m.nan , m.nan , m.nan ,  m.nan , m.nan ]}
 
 
 dict_wd     = {'poisson'             : [0     , 0     , 0     , 0     ,  5.0e-4, 1.0e-5],
                'darcyPWC'            : [0     , 0     , 0     , 0     ,  1.0e-4, 1.0e-3],
-               'navierStokes'        : [1.0e-4, m.nan , 0     , 0     ,  m.nan , m.nan ],
-               'structuralMechanics' : [1.0e-4, m.nan , 1.0e-5, 5.0e-5,  m.nan , m.nan ],
-               'helmholtz'           : [0     , m.nan , 0     , 0     ,  m.nan , m.nan ],
-               'advection'           : [0     , 0     , 0     , 0     ,  1.0e-4, 1.0e-3]}
+               'navierStokes'        : [1.0e-4, m.nan , 0     , 0     ,  1.0e-5, 2.5e-3],
+               'structuralMechanics' : [1.0e-4, m.nan , 1.0e-5, 5.0e-5,  2.5e-4, 2.5e-3],
+               'helmholtz'           : [0     , m.nan , 0     , 0     ,  1.0e-6, 2.5e-3],
+               'advection'           : [m.nan , m.nan , m.nan , m.nan ,  m.nan , m.nan ]}
 
 df_alpha  = pd.DataFrame(dict_alpha,
                 index = list_models)
