@@ -97,6 +97,10 @@ if no == 'fno':
     if pb == 'structuralMechanics':
         res = 41
         MODELS = {40:'/home/derick/Documents/FNO/structural_mechanics/main/files/inv/last_model_inv_021~res_0.21811~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230714-123804.pt'}
+    if pb == 'advection':
+        model = FNO1d(modes, width).cuda()
+        res = 200
+        MODELS = {199:'/home/derick/Documents/FNO/advenction/main/files/inv/last_model_inv_200~res_0.147017~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230714-171837.pt'}
     saved_model = MODELS[res-1]
 
 
@@ -134,6 +138,10 @@ if no == 'pino':
     if pb == 'structuralMechanics':
         res = 41
         MODELS = {40:''}
+    # if pb == 'advection':
+    #     model = UFNO1d(modes, width).cuda()
+    #     res = 200
+    #     MODELS = {199:''}
     saved_model = MODELS[res-1]
 
 if no == 'ufno':
@@ -169,9 +177,12 @@ if no == 'ufno':
     if pb == 'structuralMechanics':
         res = 41
         MODELS = {40:'/home/derick/Documents/U-FNO/structural_mechanics/files/inv/last_model_inv_041~res_0.165815~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230719-172639.pt'}
-    saved_model = MODELS[res-1]
     padding = round_to_multiple(res, 2**3, direction='up') - res 
     model = UFNO2d_modif(modes, modes, width, padding).cuda()
+    if pb == 'advection':
+        model = UFNO1d(modes, width).cuda()
+        res = 200
+        MODELS = {199:'/home/derick/Documents/U-FNO/advection/files/inv/last_model_inv_200~res_0.139048~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_5~epochs_20230721-114056.pt'}
     saved_model = MODELS[res-1]
 
 if no == 'mwt':
@@ -216,6 +227,19 @@ if no == 'mwt':
     if pb == 'structuralMechanics':
         res = 41
         MODELS = {40:'/home/derick/Documents/MWT/structural_mechanics/files/inv/last_model_cs_inv_041~res_0.163985~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230717-194115.pt'}
+    if pb == 'advection':
+        ich = 1
+        model = MWT1d(ich, 
+                    alpha = 10, #12,
+                    c = 4*4, #4,
+                    k = 4, 
+                    base = 'legendre', # 'chebyshev'
+                    nCZ = 2, #4,
+                    #L = 0,
+                    initializer = initializer,
+                    ).to(device)
+        res = 200
+        MODELS = {199:'/home/derick/Documents/MWT/advection/files/inv/last_model_cs_inv_200~res_0.126804~RelL2TestError_1000~ntrain_5000~ntest_10~BatchSize_0.001~LR_0.0001~Reg_0.5~gamma_100~Step_500~epochs_20230717-213953.pt'}
     saved_model = MODELS[res-1]
 
 if no == "pcalin":
@@ -256,14 +280,36 @@ if no == "pcalin":
                 256:'',
                 512:''}
     if pb == 'navierStokes':
+        dX = 30
+        dY = 30
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
         res = 64
-        MODELS = {63:''}
+        MODELS = {63:'/home/derick/Documents/PCANN/navier_stokes/pcalin-inv/models/last_model_064~res_0.079114~RelL2TestError_30~rd_1000~ntrain_5000~ntest_500~BatchSize_0.001~LR_0.1~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-194050-713951.pt'}
     if pb == 'helmholtz':
+        dX = 200
+        dY = 200
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
         res = 101
-        MODELS = {100:''}
+        MODELS = {100:'/home/derick/Documents/PCANN/helmholtz/pcalin-inv/models/last_model_101~res_0.15908~RelL2TestError_200~rd_1000~ntrain_5000~ntest_500~BatchSize_0.001~LR_0.1~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-133438-674893.pt'}
     if pb == 'structuralMechanics':
+        dX = 200
+        dY = 200
+        params = {}
+        params["layers"] = [dX , dY]
         res = 41
-        MODELS = {40:''}
+        MODELS = {40:'/home/derick/Documents/PCANN/structuralMechanics/pcalin-inv/models/last_model_041~res_0.288852~RelL2TestError_200~rd_1000~ntrain_5000~ntest_500~BatchSize_0.001~LR_0.1~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-122948-404766.pt'}
+    if pb == 'advection':
+        dX = 30
+        dY = 30
+        params = {}
+        params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
+        res = 200
+        MODELS = {199:'/home/derick/Documents/PCANN/advection/pcalin-inv/models/last_model_200~res_0.046829~RelL2TestError_30~rd_1000~ntrain_5000~ntest_500~BatchSize_0.001~LR_0.1~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-133236-434208.pt'}
     saved_model = MODELS[res-1]
 
 if no == "pcann":
@@ -301,14 +347,33 @@ if no == "pcann":
                 256:'',
                 512:''}
     if pb == 'navierStokes':
+        dX = 30
+        dY = 30
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
         res = 64
-        MODELS = {63:''}
+        MODELS = {63:'/home/derick/Documents/PCANN/navier_stokes/pcann-inv/models/last_model_inv_sgd_064~res_0.108317~RelL2TestError_30~rd_0.001~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.0000100000~LR_0.1000~Reg_0.1000~gamma_2500~Step_10000~epochs_20230724-173642-139817.pt'}
     if pb == 'helmholtz':
+        dX = 200
+        dY = 200
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
         res = 101
-        MODELS = {100:''}
+        MODELS = {100:'/home/derick/Documents/PCANN/helmholtz/pcann-inv/models/last_model_inv_sgd_101~res_0.000789~RelL2TestError_200~rd_0.001~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.0000100000~LR_0.1000~Reg_0.1000~gamma_2500~Step_10000~epochs_20230815-134004-692220.pt'}
     if pb == 'structuralMechanics':
+        dX = 70
+        dY = 70
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
         res = 41
-        MODELS = {40:''}
+        MODELS = {40:'/home/derick/Documents/PCANN/structuralMechanics/pcann-inv/models/last_model_inv_sgd_041~res_0.201498~RelL2TestError_70~rd_0.001~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.0000100000~LR_0.1000~Reg_0.1000~gamma_2500~Step_10000~epochs_20230815-123340-140891.pt'}
+    if pb == 'advection':
+        dX = 30
+        dY = 30
+        p_drop = 0
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
+        res = 200
+        MODELS = {199:'/home/derick/Documents/PCANN/advection/pcann-inv/models/last_model_inv_sgd_200~res_0.065293~RelL2TestError_30~rd_0.001~pdrop_1000~ntrain_5000~ntest_500~BatchSize_0.0000100000~LR_0.1000~Reg_0.1000~gamma_2500~Step_10000~epochs_20230815-133757-846339.pt'}
     saved_model = MODELS[res-1]
 
 
@@ -336,50 +401,68 @@ if torch.cuda.device_count() > 1:
 
 
 if pb == 'darcyPWC':
-    fileName_ex = "datasets/new_aUP_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5" 
-    fileName    = "/localdata/Derick/stuart_data/Darcy_421/new_aUP_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    normPATH    = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyPWC/UnitGaussianNormalizer/'
-    pcaPATH     = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/darcyPWC/UnitGaussianNormalizer/'
+    fileName = "datasets/new_aUP_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5" 
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/new_aUP_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyPWC/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/darcyPWC/UnitGaussianNormalizer/'
 if pb == 'darcyLN': 
-    fileName_ex = "datasets/aUL_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    fileName    = "/localdata/Derick/stuart_data/Darcy_421/aUL_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    normPATH    = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyLN/UnitGaussianNormalizer/'
-    pcaPATH     = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/darcyLN/UnitGaussianNormalizer/'
+    fileName = "datasets/aUL_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyLN/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/darcyLN/UnitGaussianNormalizer/'
+
 if pb == 'poisson': 
-    fileName_ex = "datasets/fUG_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    fileName    = "/localdata/Derick/stuart_data/Darcy_421/fUG_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    normPATH    = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/poisson/UnitGaussianNormalizer/'
-    pcaPATH     = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/poisson/UnitGaussianNormalizer/'
+    fileName = "datasets/fUG_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/fUG_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/poisson/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/poisson/UnitGaussianNormalizer/'
 if pb == 'navierStokes': 
-    fileName_ex = "datasets/NavierStokes_TrainData=1_TestData=1_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
-    fileName    = "/localdata/Derick/stuart_data/Darcy_421/NavierStokes_TrainData=1000_TestData=5000_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
-    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/navierStokes/UnitGaussianNormalizer/'
-    pcaPATH     = ''
+    fileName = "datasets/NavierStokes_TrainData=1_TestData=1_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/NavierStokes_TrainData=1000_TestData=5000_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/navierStokes/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/navierStokes/UnitGaussianNormalizer/'
 if pb == 'helmholtz': 
-    fileName_ex = "datasets/Helmholtz_TrainData=1_TestData=1_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
-    fileName    = "/localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
-    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
-    pcaPATH     = ''
+    fileName = "datasets/Helmholtz_TrainData=1_TestData=1_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/helmholtz/UnitGaussianNormalizer/'
 if pb == 'structuralMechanics': 
-    fileName_ex = "datasets/StructuralMechanics_TrainData=1_TestData=1_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
-    fileName    = "/localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
-    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
-    pcaPATH     = ''
+    fileName = "datasets/StructuralMechanics_TrainData=1_TestData=1_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/structuralMechanics/UnitGaussianNormalizer/'
+if pb == 'advection': 
+    fileName = "datasets/Advection_TrainData=1_TestData=1_Resolution=200_Domain=[0,1].hdf5"
+    FILEName = "../../../../../../localdata/Derick/stuart_data/Darcy_421/Advection_TrainData=1000_TestData=5000_Resolution=200_Domain=[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/advection/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/advection/UnitGaussianNormalizer/'
 
+add_noise = add_noise1d if pb == 'advection' else add_noise2d
+pb_2dim = True if pb != 'advection' else False
 
-
-_, _, X_test, Y_test = readtoArray(fileName, 1, 1, Nx = 512, Ny = 512)
+_, _, X_test, Y_test = readtoArray(FILEName, 1, 1, Nx = 512, Ny = 512)
 print ("Converting dataset to numpy array and subsamping.")
 tt = time.time()
-X_test = SubSample(np.array(X_test[ :ntest, :, :]), res, res)
-Y_test = SubSample(np.array(Y_test[ :ntest, :, :]), res, res)
+if pb_2dim:
+    X_test = SubSample(np.array(X_test[ :ntest, :, :]), res, res)
+    Y_test = SubSample(np.array(Y_test[ :ntest, :, :]), res, res)
 
-print ("    Conversion completed after %.2f minutes"%((time.time()-tt)/60))
+    print ("    Conversion completed after %.2f minutes"%((time.time()-tt)/60))
 
-print ("Adding noise.")
-tt = time.time()
-useless = np.zeros((1, res, res))#Y_TRAIN[ :2, :, :]
-_, _, _, Y_test_noisy = add_noise((useless, useless, useless, Y_test), noise_ratio)
+    print ("Adding noise.")
+    tt = time.time()
+    useless = np.zeros((1, res, res))#Y_TRAIN[ :2, :, :]
+    _, _, _, Y_test_noisy = add_noise((useless, useless, useless, Y_test), noise_ratio)
+else:
+    X_test = SubSample1D(np.array(X_test[ :ntest, :]), res)
+    Y_test = SubSample1D(np.array(Y_test[ :ntest, :]), res)
+
+    print ("    Conversion completed after %.2f minutes"%((time.time()-tt)/60))
+
+    print ("Adding noise.")
+    tt = time.time()
+    useless = np.zeros((1, res))#Y_TRAIN[ :2, :, :]
+    _, _, _, Y_test_noisy = add_noise((useless, useless, useless, Y_test), noise_ratio)
+
 
 print ("    Adding noise completed after %.2f minutes"%((time.time()-tt)/60))
 
@@ -394,16 +477,22 @@ y_noisy = torch.from_numpy(Y_test_noisy).float()#.cuda()
 if no == 'mwt':
     old_res = res
     res = closest_power(res)
-    X_test0 = CubicSpline3D(X_test, res, res)
-    Y_test0 = CubicSpline3D(Y_test, res, res)
-    Y_test0_noisy = CubicSpline3D(Y_test_noisy, res, res)
+    if pb_2dim:
+        X_test0 = CubicSpline3D(X_test, res, res)
+        Y_test0 = CubicSpline3D(Y_test, res, res)
+        Y_test0_noisy = CubicSpline3D(Y_test_noisy, res, res)
 
-    grids_mwt = []
-    grids_mwt.append(np.linspace(0, 1, res))
-    grids_mwt.append(np.linspace(0, 1, res))
-    grid_mwt = np.vstack([xx.ravel() for xx in np.meshgrid(*grids_mwt)]).T
-    grid_mwt = grid_mwt.reshape(1,res,res,2)
-    grid_mwt = torch.tensor(grid_mwt, dtype=torch.float).cuda()
+        grids_mwt = []
+        grids_mwt.append(np.linspace(0, 1, res))
+        grids_mwt.append(np.linspace(0, 1, res))
+        grid_mwt = np.vstack([xx.ravel() for xx in np.meshgrid(*grids_mwt)]).T
+        grid_mwt = grid_mwt.reshape(1,res,res,2)
+        grid_mwt = torch.tensor(grid_mwt, dtype=torch.float).cuda()
+    else:
+        X_test0 = CubicSpline2D(X_test, res)
+        Y_test0 = CubicSpline2D(Y_test, res)
+        Y_test0_noisy = CubicSpline2D(Y_test_noisy, res)
+    
 
     x_normalizer = torch.load(normPATH+"param_normalizer-cs%s-res-%s-ntrain.pt"%(res-1, ntrain)) # UnitGaussianNormalizer(x)
     y_normalizer = torch.load(normPATH+"solut_normalizer-cs%s-res-%s-ntrain.pt"%(res-1, ntrain)) # UnitGaussianNormalizer(y)
@@ -459,37 +548,67 @@ for x, y, y_noisy in test_loader:
     i += 1
     print("Running %s of %s"%(i, total))
     x, y, y_noisy = x.cuda(), y.cuda(), y_noisy.cuda()
-    
-    if no == 'mwt':
-        out = model(torch.cat([y.reshape(batch_size, res, res, 1), grid_mwt.repeat(batch_size,1,1,1)], dim=3)).reshape(batch_size, res, res)
-        out_noisy = model(torch.cat([y_noisy.reshape(batch_size, res, res, 1), grid_mwt.repeat(batch_size,1,1,1)], dim=3)).reshape(batch_size, res, res)
-    elif no == 'pcalin' or no == 'pcann':
-        out = model(y)
-        out_noisy = model(y_noisy)
-    else: 
-        out = model(y.reshape(batch_size, res, res, 1)).reshape(batch_size, res, res) 
-        out_noisy = model(y_noisy.reshape(batch_size, res, res, 1)).reshape(batch_size, res, res)
+    if pb_2dim:
+        if no == 'mwt':
+            out = model(torch.cat([y.reshape(batch_size, res, res, 1), grid_mwt.repeat(batch_size,1,1,1)], dim=3)).reshape(batch_size, res, res)
+            out_noisy = model(torch.cat([y_noisy.reshape(batch_size, res, res, 1), grid_mwt.repeat(batch_size,1,1,1)], dim=3)).reshape(batch_size, res, res)
+        elif no == 'pcalin' or no == 'pcann':
+            out = model(y)
+            out_noisy = model(y_noisy)
+        else: 
+            out = model(y.reshape(batch_size, res, res, 1)).reshape(batch_size, res, res) 
+            out_noisy = model(y_noisy.reshape(batch_size, res, res, 1)).reshape(batch_size, res, res)
+    else:
+        if no == 'mwt':
+            out = model(y.reshape(batch_size, res, 1)).reshape(batch_size, res)
+            out_noisy = model(y_noisy.reshape(batch_size, res, 1)).reshape(batch_size, res)
+        elif no == 'pcalin' or no == 'pcann':
+            out = model(y)
+            out_noisy = model(y_noisy)
+        else: 
+            out = model(y.reshape(batch_size, res, 1)).reshape(batch_size, res) 
+            out_noisy = model(y_noisy.reshape(batch_size, res, 1)).reshape(batch_size, res)
 
     out = x_normalizer.decode(out)
     out_noisy = x_normalizer.decode(out_noisy)
     
-    if no == 'pcalin' or no == 'pcann':
-        x = pcaX.inverse_transform(x.detach().cpu().numpy().reshape(batch_size, -1)).reshape(batch_size, old_res, old_res)
-        x = torch.from_numpy(x).float().to(device)
+    if pb_2dim:
+        if no == 'pcalin' or no == 'pcann':
+            x = pcaX.inverse_transform(x.detach().cpu().numpy().reshape(batch_size, -1)).reshape(batch_size, old_res, old_res)
+            x = torch.from_numpy(x).float().to(device)
 
-        out = pcaX.inverse_transform(out.detach().cpu().numpy().reshape(batch_size, -1)).reshape(batch_size, old_res, old_res)
-        out = torch.from_numpy(out).float().to(device)
+            out = pcaX.inverse_transform(out.detach().cpu().numpy().reshape(batch_size, -1)).reshape(batch_size, old_res, old_res)
+            out = torch.from_numpy(out).float().to(device)
 
-        out_noisy = pcaX.inverse_transform(out_noisy.detach().cpu().numpy().reshape(batch_size, -1)).reshape(batch_size, old_res, old_res)
-        out_noisy = torch.from_numpy(out_noisy).float().to(device)
-    
-    if no == 'mwt':
-        #print("Returning to orignial resolution to get test error based on it")
-        out = CubicSpline3D(out.detach().cpu().numpy(), old_res, old_res)
-        out = torch.from_numpy(out).float().to(device)
+            out_noisy = pcaX.inverse_transform(out_noisy.detach().cpu().numpy().reshape(batch_size, -1)).reshape(batch_size, old_res, old_res)
+            out_noisy = torch.from_numpy(out_noisy).float().to(device)
+        
+        if no == 'mwt':
+            #print("Returning to orignial resolution to get test error based on it")
+            out = CubicSpline3D(out.detach().cpu().numpy(), old_res, old_res)
+            out = torch.from_numpy(out).float().to(device)
 
-        out_noisy = CubicSpline3D(out_noisy.detach().cpu().numpy(), old_res, old_res)
-        out_noisy = torch.from_numpy(out_noisy).float().to(device)
+            out_noisy = CubicSpline3D(out_noisy.detach().cpu().numpy(), old_res, old_res)
+            out_noisy = torch.from_numpy(out_noisy).float().to(device)
+
+    else:
+        if no == 'pcalin' or no == 'pcann':
+            x = pcaX.inverse_transform(x.detach().cpu().numpy().reshape(batch_size, -1)).reshape(batch_size, old_res)
+            x = torch.from_numpy(x).float().to(device)
+
+            out = pcaX.inverse_transform(out.detach().cpu().numpy().reshape(batch_size, -1)).reshape(batch_size, old_res)
+            out = torch.from_numpy(out).float().to(device)
+
+            out_noisy = pcaX.inverse_transform(out_noisy.detach().cpu().numpy().reshape(batch_size, -1)).reshape(batch_size, old_res)
+            out_noisy = torch.from_numpy(out_noisy).float().to(device)
+        
+        if no == 'mwt':
+            #print("Returning to orignial resolution to get test error based on it")
+            out = CubicSpline2D(out.detach().cpu().numpy(), old_res)
+            out = torch.from_numpy(out).float().to(device)
+
+            out_noisy = CubicSpline2D(out_noisy.detach().cpu().numpy(), old_res)
+            out_noisy = torch.from_numpy(out_noisy).float().to(device)
 
     test_l2 += myloss(out.view(batch_size,-1), x.view(batch_size,-1)).item()
     test_l2_noisy += myloss(out_noisy.view(batch_size,-1), x.view(batch_size,-1)).item()
@@ -505,206 +624,381 @@ directory = 'figures-backward'
 if not os.path.exists(directory):
     os.makedirs(directory)
 file = open(directory+'/Log.txt',"a")
-file.write("Problem: %s NeuralOperator: %s NoiseRatio: %s NoiselessError: %.4f Noisy Error: %.4f\n"%(pb, no, noise_ratio, test_l2, test_l2_noisy))
+file.write("Problem: %s NeuralOperator: %s NoiseRatio: %s NoiselessError: %.5f Noisy Error: %.5f\n"%(pb, no, noise_ratio, test_l2, test_l2_noisy))
 ModelInfos = '%s-%s-%s-noise'%(pb, no, noise_ratio)
 
 directory = 'figures-backward' + '/' + pb + '/' + no
 if not os.path.exists(directory):
     os.makedirs(directory)
-U_train, F_train, _, _ = readtoArray(fileName_ex, 1, 1, 512, 512)
+U_train, F_train, _, _ = readtoArray(fileName, 1, 1, 512, 512)
 
 print("Starting the Verification with Sampled Example")
 tt = time.time()
 
-if no == 'fno' or no == 'ufno' or no == 'pino':  
-    U_FDM = SubSample(np.array(U_train), res, res)[0]
-    F_train = SubSample(np.array(F_train), res, res)
-    useless = np.zeros((1, res, res))#Y_TRAIN[ :2, :, :]
-    _, _, _, F_train_noisy = add_noise((useless, useless, useless, F_train), noise_ratio/100)
+if pb_2dim:
+    if no == 'fno' or no == 'ufno' or no == 'pino':  
+        U_FDM = SubSample(np.array(U_train), res, res)[0]
+        F_train = SubSample(np.array(F_train), res, res)
+        useless = np.zeros((1, res, res))#Y_TRAIN[ :2, :, :]
+        _, _, _, F_train_noisy = add_noise((useless, useless, useless, F_train), noise_ratio/100)
 
-    print("      Doing FNO on Example...")
-    tt = time.time()
-    ff = torch.from_numpy(F_train).float().cuda()
-    ff_noisy = torch.from_numpy(F_train_noisy).float().cuda()
+        print("      Doing FNO on Example...")
+        tt = time.time()
+        ff = torch.from_numpy(F_train).float().cuda()
+        ff_noisy = torch.from_numpy(F_train_noisy).float().cuda()
 
-    ff = y_normalizer.encode(ff)
-    ff_noisy = y_normalizer.encode(ff_noisy)
+        ff = y_normalizer.encode(ff)
+        ff_noisy = y_normalizer.encode(ff_noisy)
 
-    ff = ff.reshape(1,res,res,1)
-    ff_noisy = ff_noisy.reshape(1,res,res,1)
+        ff = ff.reshape(1,res,res,1)
+        ff_noisy = ff_noisy.reshape(1,res,res,1)
 
-    U_NO = x_normalizer.decode(model(ff).reshape(1, res, res)).detach().cpu().numpy()
-    U_NO_noisy = x_normalizer.decode(model(ff_noisy).reshape(1, res, res)).detach().cpu().numpy()
+        U_NO = x_normalizer.decode(model(ff).reshape(1, res, res)).detach().cpu().numpy()
+        U_NO_noisy = x_normalizer.decode(model(ff_noisy).reshape(1, res, res)).detach().cpu().numpy()
 
-    U_NO = U_NO[0] 
-    U_NO_noisy = U_NO_noisy[0]
-    print("            FNO completed after %.4f secondes"%(time.time()-tt))
+        U_NO = U_NO[0] 
+        U_NO_noisy = U_NO_noisy[0]
+        print("            FNO completed after %.4f secondes"%(time.time()-tt))
 
-if no == 'mwt':  
-    U_FDM = SubSample(np.array(U_train), old_res, old_res)[0]
-    F_train = SubSample(np.array(F_train), old_res, old_res)
-    useless = np.zeros((1, old_res, old_res))#Y_TRAIN[ :2, :, :]
-    _, _, _, F_train_noisy = add_noise((useless, useless, useless, F_train), noise_ratio/100)
+    if no == 'mwt':  
+        U_FDM = SubSample(np.array(U_train), old_res, old_res)[0]
+        F_train = SubSample(np.array(F_train), old_res, old_res)
+        useless = np.zeros((1, old_res, old_res))#Y_TRAIN[ :2, :, :]
+        _, _, _, F_train_noisy = add_noise((useless, useless, useless, F_train), noise_ratio/100)
 
-    print("      Doing MWT on Example...")
-    tt = time.time()
-    F_train_cs = CubicSpline3D(F_train, res, res)
-    F_train_cs_noisy = CubicSpline3D(F_train_noisy, res, res)
+        print("      Doing MWT on Example...")
+        tt = time.time()
+        F_train_cs = CubicSpline3D(F_train, res, res)
+        F_train_cs_noisy = CubicSpline3D(F_train_noisy, res, res)
 
-    ff = torch.from_numpy(F_train_cs).float().cuda()
-    ff_noisy = torch.from_numpy(F_train_cs_noisy).float().cuda()
+        ff = torch.from_numpy(F_train_cs).float().cuda()
+        ff_noisy = torch.from_numpy(F_train_cs_noisy).float().cuda()
 
-    ff = y_normalizer.encode(ff)
-    ff_noisy = y_normalizer.encode(ff_noisy)
+        ff = y_normalizer.encode(ff)
+        ff_noisy = y_normalizer.encode(ff_noisy)
 
-    ff = torch.cat([ff.reshape(1,res,res,1), grid_mwt.repeat(1,1,1,1)], dim=3).cuda() #ff.reshape(1,res,res,1).cuda()#
-    ff_noisy = torch.cat([ff_noisy.reshape(1,res,res,1), grid_mwt.repeat(1,1,1,1)], dim=3).cuda() #ff.reshape(1,res,res,1).cuda()#
+        ff = torch.cat([ff.reshape(1,res,res,1), grid_mwt.repeat(1,1,1,1)], dim=3).cuda() #ff.reshape(1,res,res,1).cuda()#
+        ff_noisy = torch.cat([ff_noisy.reshape(1,res,res,1), grid_mwt.repeat(1,1,1,1)], dim=3).cuda() #ff.reshape(1,res,res,1).cuda()#
 
-    U_NO = model(ff)
-    U_NO_noisy = model(ff_noisy)
+        U_NO = model(ff)
+        U_NO_noisy = model(ff_noisy)
 
-    U_NO = U_NO.reshape(1, res, res)
-    U_NO_noisy = U_NO_noisy.reshape(1, res, res)
+        U_NO = U_NO.reshape(1, res, res)
+        U_NO_noisy = U_NO_noisy.reshape(1, res, res)
 
-    U_NO = x_normalizer.decode(U_NO)
-    U_NO_noisy = x_normalizer.decode(U_NO_noisy)
+        U_NO = x_normalizer.decode(U_NO)
+        U_NO_noisy = x_normalizer.decode(U_NO_noisy)
 
-    U_NO = U_NO.detach().cpu().numpy()
-    U_NO_noisy = U_NO_noisy.detach().cpu().numpy()
+        U_NO = U_NO.detach().cpu().numpy()
+        U_NO_noisy = U_NO_noisy.detach().cpu().numpy()
 
-    U_NO = CubicSpline3D(U_NO, old_res, old_res)
-    U_NO_noisy = CubicSpline3D(U_NO_noisy, old_res, old_res)
+        U_NO = CubicSpline3D(U_NO, old_res, old_res)
+        U_NO_noisy = CubicSpline3D(U_NO_noisy, old_res, old_res)
 
-    U_NO = U_NO[0] 
-    U_NO_noisy = U_NO_noisy[0] 
+        U_NO = U_NO[0] 
+        U_NO_noisy = U_NO_noisy[0] 
 
-    print("            MWT completed after %s"%(time.time()-tt))
+        print("            MWT completed after %s"%(time.time()-tt))
 
-if no == 'pcalin' or no == 'pcann':
-    F_train = SubSample(F_train, old_res, old_res)
-    U_train = SubSample(U_train, old_res, old_res)
-    U_FDM = np.array(U_train[0])
+    if no == 'pcalin' or no == 'pcann':
+        F_train = SubSample(F_train, old_res, old_res)
+        U_train = SubSample(U_train, old_res, old_res)
+        U_FDM = np.array(U_train[0])
 
-    useless = np.zeros((1, old_res, old_res))#Y_TRAIN[ :2, :, :]
-    _, _, _, F_train_noisy = add_noise((useless, useless, useless, F_train), noise_ratio/100)
+        useless = np.zeros((1, old_res, old_res))#Y_TRAIN[ :2, :, :]
+        _, _, _, F_train_noisy = add_noise((useless, useless, useless, F_train), noise_ratio/100)
 
-    ff = np.array(F_train[0])
-    ff_noisy = np.array(F_train_noisy[0])    
+        ff = np.array(F_train[0])
+        ff_noisy = np.array(F_train_noisy[0])    
 
-    print("      Doing PCANN on Example...")
-    tt = time.time()
+        print("      Doing PCANN on Example...")
+        tt = time.time()
 
-    inPCANN = pcaY.transform(ff.reshape(1, -1))
-    inPCANN_noisy = pcaY.transform(ff_noisy.reshape(1, -1))
+        inPCANN = pcaY.transform(ff.reshape(1, -1))
+        inPCANN_noisy = pcaY.transform(ff_noisy.reshape(1, -1))
 
-    inPCANN = torch.from_numpy(inPCANN).float().to(device)
-    inPCANN_noisy = torch.from_numpy(inPCANN_noisy).float().to(device)
+        inPCANN = torch.from_numpy(inPCANN).float().to(device)
+        inPCANN_noisy = torch.from_numpy(inPCANN_noisy).float().to(device)
 
-    inPCANN = model(y_normalizer.encode(inPCANN))
-    inPCANN_noisy = model(y_normalizer.encode(inPCANN_noisy))
+        inPCANN = model(y_normalizer.encode(inPCANN))
+        inPCANN_noisy = model(y_normalizer.encode(inPCANN_noisy))
 
-    inPCANN = x_normalizer.decode(inPCANN) #changed!!
-    inPCANN_noisy = x_normalizer.decode(inPCANN_noisy) #changed!!
+        inPCANN = x_normalizer.decode(inPCANN) #changed!!
+        inPCANN_noisy = x_normalizer.decode(inPCANN_noisy) #changed!!
 
-    inPCANN = inPCANN.detach().cpu().numpy()
-    inPCANN_noisy = inPCANN_noisy.detach().cpu().numpy()
+        inPCANN = inPCANN.detach().cpu().numpy()
+        inPCANN_noisy = inPCANN_noisy.detach().cpu().numpy()
 
-    U_NO = pcaX.inverse_transform(inPCANN).reshape(old_res, old_res)
-    U_NO_noisy = pcaX.inverse_transform(inPCANN_noisy).reshape(old_res, old_res)
-    print("            PCANN completed after %s"%(time.time()-tt))
+        U_NO = pcaX.inverse_transform(inPCANN).reshape(old_res, old_res)
+        U_NO_noisy = pcaX.inverse_transform(inPCANN_noisy).reshape(old_res, old_res)
+        print("            PCANN completed after %s"%(time.time()-tt))
 
-myLoss = LpLoss(size_average=False)
-print()
-print("Ploting comparism of FDM and FNO Simulation results\n\n")
-fig = plt.figure(figsize=((5+2)*4, (5+0.5)*2))
+    myLoss = LpLoss(size_average=False)
+    print()
+    print("Ploting comparism of FDM and FNO Simulation results\n\n")
+    fig = plt.figure(figsize=((5+2)*4, (5+0.5)*2))
 
-# if pb[0:5] == 'darcy':
-#     fig.suptitle(r"Plot of $-\nabla \cdot (a(s) \nabla u(s)) = f(s), \partial \Omega = 0$ with $u|_{\partial \Omega}  = 0.$")
-# if pb == 'poisson':
-#     fig.suptitle("Plot of $- \Delta u = f(x, y)$ on $\Omega = ]0,1[ x ]0,1[$ with $u|_{\partial \Omega}  = 0.$")
+    colourMap = plt.cm.magma # parula() #plt.cm.jet #plt.cm.coolwarm
 
-colourMap = plt.cm.magma # parula() #plt.cm.jet #plt.cm.coolwarm
+    plt.subplot(2, 4, 1)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Input")
+    plt.imshow(F_train[0], cmap=colourMap, extent=[0, 1, 0,1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#(format=OOMFormatter(-5))
 
-plt.subplot(2, 4, 1)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title("Input")
-plt.imshow(F_train[0], cmap=colourMap, extent=[0, 1, 0,1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#(format=OOMFormatter(-5))
+    plt.subplot(2, 4, 2)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Truth")
+    plt.imshow(U_FDM, cmap=colourMap, extent=[0, 1, 0,1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#(format=OOMFormatter(-5))
 
-plt.subplot(2, 4, 2)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title("Truth")
-plt.imshow(U_FDM, cmap=colourMap, extent=[0, 1, 0,1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#(format=OOMFormatter(-5))
+    plt.subplot(2, 4, 3)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title('inv'+no.upper())
+    plt.imshow(U_NO, cmap=colourMap, extent=[0, 1, 0,1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#(format=OOMFormatter(-5))
 
-plt.subplot(2, 4, 3)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title('inv'+no.upper())
-plt.imshow(U_NO, cmap=colourMap, extent=[0, 1, 0,1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#(format=OOMFormatter(-5))
+    plt.subplot(2, 4, 4)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("FDM-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO, U_FDM).item(), 3)))
+    plt.imshow(np.abs(U_FDM - U_NO), cmap=colourMap, extent=[0, 1, 0,1], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#, vmin=0, vmax=1, )
+    plt.colorbar()#(format=OOMFormatter(-5))
 
-plt.subplot(2, 4, 4)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title("FDM-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO, U_FDM).item(), 3)))
-plt.imshow(np.abs(U_FDM - U_NO), cmap=colourMap, extent=[0, 1, 0,1], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#, vmin=0, vmax=1, )
-plt.colorbar()#(format=OOMFormatter(-5))
+    plt.subplot(2, 4, 5)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Noisy Input")
+    plt.imshow(F_train_noisy[0], cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#(format=OOMFormatter(-5))
 
-plt.subplot(2, 4, 5)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title("Noisy Input")
-plt.imshow(F_train_noisy[0], cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#(format=OOMFormatter(-5))
+    plt.subplot(2, 4, 6)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Truth")
+    plt.imshow(U_FDM, cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#(format=OOMFormatter(-5))
 
-plt.subplot(2, 4, 6)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title("Truth")
-plt.imshow(U_FDM, cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#(format=OOMFormatter(-5))
+    plt.subplot(2, 4, 7)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title('Noisy inv'+no.upper())
+    plt.imshow(U_NO_noisy, cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#(format=OOMFormatter(-5))
 
-plt.subplot(2, 4, 7)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title('Noisy inv'+no.upper())
-plt.imshow(U_NO_noisy, cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#(format=OOMFormatter(-5))
+    plt.subplot(2, 4, 8)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("FDM-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO_noisy, U_FDM).item(), 3)))
+    plt.imshow(np.abs(U_FDM - U_NO_noisy), cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#, vmin=0, vmax=1, )
+    plt.colorbar()#(format=OOMFormatter(-5))
 
-plt.subplot(2, 4, 8)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title("FDM-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO_noisy, U_FDM).item(), 3)))
-plt.imshow(np.abs(U_FDM - U_NO_noisy), cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#, vmin=0, vmax=1, )
-plt.colorbar()#(format=OOMFormatter(-5))
+    fig.tight_layout()   
+    plt.savefig(directory+'/compare-'+ModelInfos+'.png',dpi=500)
 
-fig.tight_layout()   
-plt.savefig(directory+'/compare-'+ModelInfos+'.png',dpi=500)
+    #plt.show()
 
-#plt.show()
-
-fig = plt.figure(figsize=((5+1)*2, 5))
+    fig = plt.figure(figsize=((5+1)*2, 5))
 
 
-plt.subplot(1, 2, 1)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title('inv'+no.upper())
-plt.imshow(U_NO_noisy, cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#format=OOMFormatter(-5))
+    plt.subplot(1, 2, 1)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title('inv'+no.upper())
+    plt.imshow(U_NO_noisy, cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#format=OOMFormatter(-5))
 
-plt.subplot(1, 2, 2)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title("Truth-inv"+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO_noisy, U_FDM).item(), 3)))
-plt.imshow(np.abs(U_FDM - U_NO_noisy), cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#, vmin=0, vmax=1, )
-plt.colorbar()#format=OOMFormatter(-5))
+    plt.subplot(1, 2, 2)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Truth-inv"+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO_noisy, U_FDM).item(), 3)))
+    plt.imshow(np.abs(U_FDM - U_NO_noisy), cmap=colourMap, extent=[0, 1, 0, 1], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#, vmin=0, vmax=1, )
+    plt.colorbar()#format=OOMFormatter(-5))
 
-fig.tight_layout()
-plt.savefig(directory+'/'+ModelInfos+'.png',dpi=500)
+    fig.tight_layout()
+    plt.savefig(directory+'/'+ModelInfos+'.png',dpi=500)
 
-#plt.show()
-print ('Relative Error- Without Noise: %.6f | With Noise: %.6f'%(test_l2, test_l2_noisy))
+    #plt.show()
+    print ('Relative Error- Without Noise: %.6f | With Noise: %.6f'%(test_l2, test_l2_noisy))
+
+else:
+    if no == 'fno' or no == 'ufno' or no == 'pino':  
+        U_FDM = SubSample1D(np.array(U_train), res)[0]
+        F_train = SubSample1D(np.array(F_train), res)
+        useless = np.zeros((1, res))#Y_TRAIN[ :2, :, :]
+        _, _, _, F_train_noisy = add_noise((useless, useless, useless, F_train), noise_ratio/100)
+
+        print("      Doing FNO on Example...")
+        tt = time.time()
+        ff = torch.from_numpy(F_train).float().cuda()
+        ff_noisy = torch.from_numpy(F_train_noisy).float().cuda()
+
+        ff = y_normalizer.encode(ff)
+        ff_noisy = y_normalizer.encode(ff_noisy)
+
+        ff = ff.reshape(1,res,1)
+        ff_noisy = ff_noisy.reshape(1,res,1)
+
+        U_NO = x_normalizer.decode(model(ff).reshape(1, res)).detach().cpu().numpy()
+        U_NO_noisy = x_normalizer.decode(model(ff_noisy).reshape(1, res)).detach().cpu().numpy()
+
+        U_NO = U_NO[0] 
+        U_NO_noisy = U_NO_noisy[0]
+        print("            FNO completed after %.4f secondes"%(time.time()-tt))
+
+    if no == 'mwt':  
+        U_FDM = SubSample1D(np.array(U_train), old_res)[0]
+        F_train = SubSample1D(np.array(F_train), old_res)
+        useless = np.zeros((1, old_res))#Y_TRAIN[ :2, :, :]
+        _, _, _, F_train_noisy = add_noise((useless, useless, useless, F_train), noise_ratio/100)
+
+        print("      Doing MWT on Example...")
+        tt = time.time()
+        F_train_cs = CubicSpline2D(F_train, res)
+        F_train_cs_noisy = CubicSpline2D(F_train_noisy, res)
+
+        ff = torch.from_numpy(F_train_cs).float().cuda()
+        ff_noisy = torch.from_numpy(F_train_cs_noisy).float().cuda()
+
+        ff = y_normalizer.encode(ff)
+        ff_noisy = y_normalizer.encode(ff_noisy)
+
+        ff = ff.reshape(1,res,1).cuda() #ff.reshape(1,res,res,1).cuda()#
+        ff_noisy = ff_noisy.reshape(1,res,1).cuda() #ff.reshape(1,res,res,1).cuda()#
+
+        U_NO = model(ff)
+        U_NO_noisy = model(ff_noisy)
+
+        U_NO = U_NO.reshape(1, res)
+        U_NO_noisy = U_NO_noisy.reshape(1, res)
+
+        U_NO = x_normalizer.decode(U_NO)
+        U_NO_noisy = x_normalizer.decode(U_NO_noisy)
+
+        U_NO = U_NO.detach().cpu().numpy()
+        U_NO_noisy = U_NO_noisy.detach().cpu().numpy()
+
+        U_NO = CubicSpline2D(U_NO, old_res)
+        U_NO_noisy = CubicSpline2D(U_NO_noisy, old_res)
+
+        U_NO = U_NO[0] 
+        U_NO_noisy = U_NO_noisy[0] 
+
+        print("            MWT completed after %s"%(time.time()-tt))
+
+    if no == 'pcalin' or no == 'pcann':
+        F_train = SubSample1D(F_train, old_res)
+        U_train = SubSample1D(U_train, old_res)
+        U_FDM = np.array(U_train[0])
+
+        useless = np.zeros((1, old_res))#Y_TRAIN[ :2, :, :]
+        _, _, _, F_train_noisy = add_noise((useless, useless, useless, F_train), noise_ratio/100)
+
+        ff = np.array(F_train[0])
+        ff_noisy = np.array(F_train_noisy[0])    
+
+        print("      Doing PCANN on Example...")
+        tt = time.time()
+
+        inPCANN = pcaY.transform(ff.reshape(1, -1))
+        inPCANN_noisy = pcaY.transform(ff_noisy.reshape(1, -1))
+
+        inPCANN = torch.from_numpy(inPCANN).float().to(device)
+        inPCANN_noisy = torch.from_numpy(inPCANN_noisy).float().to(device)
+
+        inPCANN = model(y_normalizer.encode(inPCANN))
+        inPCANN_noisy = model(y_normalizer.encode(inPCANN_noisy))
+
+        inPCANN = x_normalizer.decode(inPCANN) #changed!!
+        inPCANN_noisy = x_normalizer.decode(inPCANN_noisy) #changed!!
+
+        inPCANN = inPCANN.detach().cpu().numpy()
+        inPCANN_noisy = inPCANN_noisy.detach().cpu().numpy()
+
+        U_NO = pcaX.inverse_transform(inPCANN).flatten()
+        U_NO_noisy = pcaX.inverse_transform(inPCANN_noisy).flatten()
+        print("            PCANN completed after %s"%(time.time()-tt))
+
+    myLoss = LpLoss(size_average=False)
+    print()
+    print("Ploting comparism of FDM and FNO Simulation results\n\n")
+    fig = plt.figure(figsize=((5+2)*4, (5+0.5)*2))
+
+    colourMap = plt.cm.magma # parula() #plt.cm.jet #plt.cm.coolwarm
+
+    plt.subplot(2, 4, 1)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Input")
+    plt.plot(F_train[0])
+
+    plt.subplot(2, 4, 2)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Truth")
+    plt.plot(U_FDM)
+
+    plt.subplot(2, 4, 3)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title('inv'+no.upper())
+    plt.plot(U_NO)
+
+    plt.subplot(2, 4, 4)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("FDM-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO, U_FDM).item(), 3)))
+    plt.plot(np.abs(U_FDM - U_NO))
+
+    plt.subplot(2, 4, 5)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Noisy Input")
+    plt.plot(F_train_noisy[0])
+
+    plt.subplot(2, 4, 6)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Truth")
+    plt.plot(U_FDM)
+
+    plt.subplot(2, 4, 7)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title('Noisy inv'+no.upper())
+    plt.plot(U_NO_noisy)
+
+    plt.subplot(2, 4, 8)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("FDM-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO_noisy, U_FDM).item(), 3)))
+    plt.plot(np.abs(U_FDM - U_NO_noisy))
+
+    fig.tight_layout()   
+    plt.savefig(directory+'/compare-'+ModelInfos+'.png',dpi=500)
+
+    #plt.show()
+
+    fig = plt.figure(figsize=((5+1)*2, 5))
+
+
+    plt.subplot(1, 2, 1)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title('inv'+no.upper())
+    plt.plot(U_NO_noisy)
+
+    plt.subplot(1, 2, 2)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Truth-inv"+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(U_NO_noisy, U_FDM).item(), 3)))
+    plt.plot(np.abs(U_FDM - U_NO_noisy))
+
+    fig.tight_layout()
+    plt.savefig(directory+'/'+ModelInfos+'.png',dpi=500)
+
+    #plt.show()
+    print ('Relative Error- Without Noise: %.6f | With Noise: %.6f'%(test_l2, test_l2_noisy))

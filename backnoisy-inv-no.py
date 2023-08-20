@@ -159,7 +159,7 @@ if pb == 'structuralMechanics':
     normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
     pcaPATH     = ''
 
-
+add_noise = add_noise1d if pb == 'advection' else add_noise2d
 
 Y_train, X_train, Y_test, X_test = readtoArray(fileName, 1, 1, Nx = 512, Ny = 512)
 useless = np.zeros((1, res, res))#Y_TRAIN[ :2, :, :]
