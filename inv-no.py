@@ -560,7 +560,7 @@ dict_alpha  = {'poisson'             : [2.5e-1, 5.0e-2, 5.0e-2, 5.0e-2,  5.0e-2,
                'navierStokes'        : [5.0e-5, m.nan , 5     , 5     ,  5.0e-0, 5.0e-3],
                'structuralMechanics' : [2.5e-1, m.nan , 2.5e-2, 1.0e-1,  5.0e-4, 0.0e-0],
                'helmholtz'           : [5.0e-1, m.nan , 1     , 1     ,  2.5e-3, 1.0e-2],
-               'advection'           : [m.nan , m.nan , m.nan , m.nan ,  0     , 5.0e-4]}
+               'advection'           : [m.nan , m.nan , m.nan , m.nan ,  1.0e-1, 2.5e-4]}
 
 
 dict_wd     = {'poisson'             : [0     , 0     , 0     , 0     ,  5.0e-4, 1.0e-5],
@@ -568,7 +568,7 @@ dict_wd     = {'poisson'             : [0     , 0     , 0     , 0     ,  5.0e-4,
                'navierStokes'        : [1.0e-4, m.nan , 0     , 0     ,  1.0e-5, 2.5e-3],
                'structuralMechanics' : [1.0e-4, m.nan , 1.0e-5, 5.0e-5,  2.5e-4, 2.5e-3],
                'helmholtz'           : [0     , m.nan , 0     , 0     ,  1.0e-6, 2.5e-3],
-               'advection'           : [m.nan , m.nan , m.nan , m.nan ,  2.5e-6, 5.0e-4]}
+               'advection'           : [m.nan , m.nan , m.nan , m.nan ,  1.0e-4, 1.0e-5]}
 
 df_alpha  = pd.DataFrame(dict_alpha,
                 index = list_models)

@@ -51,7 +51,7 @@ def closest_power(n, base = 2):
 
     return 2**pow
 
-def plot_comparism(pb, no, noise_ratio, out_masked, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy, ResultsDir=''):
+def plot_comparism(pb, no, noise_ratio, out_masked, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy, ResultsDir='',compDir=''):
     params = dict()
     params["xmin"], params["xmax"], params["ymin"], params["ymax"] = 0, 1, 0, 1
         
@@ -141,13 +141,13 @@ def plot_comparism(pb, no, noise_ratio, out_masked, yout, X_train, Y_train_noisy
     plt.imshow(np.abs(Y_learned[0] - Y_train[0]), cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#)#, vmin=0, vmax=1, )
     plt.colorbar()#format=OOMFormatter(-5))
 
-    directory = ResultsDir +'figures/'+pb+'/noiseRatio=%s'%(noise_ratio)+'/'+no
+    directory = ResultsDir +'figures/'+pb+'/noiseRatio=%s'%(noise_ratio)+'/'+no+compDir
     if not os.path.exists(directory):
         os.makedirs(directory)
     plt.savefig(directory+'/compare'+ModelInfos+'.png',dpi=500)
 
 
-def plot_comparism1d(pb, no, noise_ratio, out_masked, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy, ResultsDir=''):
+def plot_comparism1d(pb, no, noise_ratio, out_masked, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy, ResultsDir='',compDir=''):
     params = dict()
     params["xmin"], params["xmax"], params["ymin"], params["ymax"] = 0, 1, 0, 1
         
@@ -224,7 +224,7 @@ def plot_comparism1d(pb, no, noise_ratio, out_masked, yout, X_train, Y_train_noi
     plt.title(r"$|u(s) - \hat u(s)|$, RelL2Err = "+str(round(myloss.rel_single(Y_learned[0], Y_train[0]).item(), 3)))
     plt.plot(np.abs(Y_learned[0] - Y_train[0]))
 
-    directory = ResultsDir +'figures/'+pb+'/noiseRatio=%s'%(noise_ratio)+'/'+no
+    directory = ResultsDir +'figures/'+pb+'/noiseRatio=%s'%(noise_ratio)+'/'+no+compDir
     if not os.path.exists(directory):
         os.makedirs(directory)
     plt.savefig(directory+'/compare'+ModelInfos+'.png',dpi=500)

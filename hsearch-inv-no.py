@@ -436,6 +436,7 @@ if pb == 'advection':
     pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/advection/UnitGaussianNormalizer/'
 
 
+
 add_noise = add_noise1d if pb == 'advection' else add_noise2d
 pb_2dim = True if pb != 'advection' else False
 
@@ -642,7 +643,7 @@ for wd in WD:
                 loss_f, loss_bd = 0, 0
             
             #TV_loss = total_variation_loss if (pb == 'poisson' and not(no == 'pcann' or no == 'pcalin')) else total_variance
-            TV_loss = total_variance if pb == 'darcyPWC' else total_variance_1d if pb == 'structuralMechanics' else tvl2
+            TV_loss = total_variance if pb == 'darcyPWC' else total_variance_1d if pb == 'structuralMechanics' or pb == 'advection' else tvl2
             loss_TV = TV_loss(x_normalizer.decode(out_masked))
             
             pino_loss       = 0.2*loss_f + loss_data       + alpha*loss_TV
@@ -777,18 +778,18 @@ for wd in WD:
             if ep == epochs-1:
                 if pb_2dim:
                     if no == 'mwt':
-                        plot_comparism(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy, ResultsDir)
+                        plot_comparism(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy, ResultsDir, '/compare')
                     elif no == 'pcalin' or no == 'pcann':
-                        plot_comparism(pb, no, noise_ratio, out_learned, YYout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy, ResultsDir)
+                        plot_comparism(pb, no, noise_ratio, out_learned, YYout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy, ResultsDir, '/compare')
                     else:
-                        plot_comparism(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy, ResultsDir)
+                        plot_comparism(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy, ResultsDir, '/compare')
                 else:
                     if no == 'mwt':
-                        plot_comparism1d(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy, ResultsDir)
+                        plot_comparism1d(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy, ResultsDir, '/compare')
                     elif no == 'pcalin' or no == 'pcann':
-                        plot_comparism1d(pb, no, noise_ratio, out_learned, YYout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy, ResultsDir)
+                        plot_comparism1d(pb, no, noise_ratio, out_learned, YYout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, old_res, myloss, accuracy, ResultsDir, '/compare')
                     else:
-                        plot_comparism1d(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy, ResultsDir)
+                        plot_comparism1d(pb, no, noise_ratio, out_learned, yout, X_train, Y_train_noisy, Y_train, ModelInfos, num_samp, res, myloss, accuracy, ResultsDir, '/compare')
                 
 
                     
@@ -826,9 +827,12 @@ for wd in WD:
         plt.title(title)
 
         directory = ResultsDir +  'figures/%s/noiseRatio=%s/%s'%(pb, noise_ratio, no)
+        directory_loss = directory + '/loss'
         if not os.path.exists(directory):
             os.makedirs(directory)
-        plt.savefig(directory+'/TrainingErr'+ModelInfos+".png", dpi=500)
+        if not os.path.exists(directory_loss):
+            os.makedirs(directory_loss)
+        plt.savefig(directory_loss+'/TrainingErr'+ModelInfos+".png", dpi=500)
 
         #plt.show()
         file = open(directory+'/Results_%s_samples_'%(ntest)+TIMESTAMP+'.txt',"a")
