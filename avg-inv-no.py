@@ -526,9 +526,9 @@ for samp in range(ntest):
             grid_mwt = grid_mwt.reshape(1,res,res,2)
             grid_mwt = torch.tensor(grid_mwt, dtype=torch.float).cuda()
         else:
-            X_train0 = CubicSpline3D(X_train, res)
-            Y_train0 = CubicSpline3D(Y_train, res)
-            Y_train0_noisy = CubicSpline3D(Y_train_noisy, res)
+            X_train0 = CubicSpline2D(X_train, res)
+            Y_train0 = CubicSpline2D(Y_train, res)
+            Y_train0_noisy = CubicSpline2D(Y_train_noisy, res)
 
 
         x_normalizer = torch.load(normPATH+"param_normalizer-cs%s-res-%s-ntrain.pt"%(res-1, ntrain)) # UnitGaussianNormalizer(x_train)
@@ -597,20 +597,20 @@ for samp in range(ntest):
     list_models =                       [ 'fno', 'pino', 'ufno', 'mwt' , 'pcann', 'pcalin']
 
 
-    dict_alpha  = {'poisson'          : [2.5e-1, 5.0e-2, 5.0e-2, 5.0e-2,  5.0e-2, 2.5e-2],
-                'darcyPWC'            : [2.5e-2, 5.0e-3, 5.0e-3, 5.0e-3,  5.0e-3, 1.0e-3],
-                'navierStokes'        : [5.0e-5, m.nan , 5     , 5     ,  5.0e-0, 5.0e-3],
-                'structuralMechanics' : [2.5e-1, m.nan , 2.5e-2, 1.0e-1,  5.0e-4, 0.0e-0],
-                'helmholtz'           : [5.0e-1, m.nan , 1     , 1     ,  2.5e-3, 1.0e-2],
-                'advection'           : [5.0e-3, m.nan , 5.0e-2, m.nan ,  1.0e-1, 2.5e-4]}
+    dict_alpha  = {'poisson'             : [2.5e-1, 5.0e-2, 5.0e-2, 5.0e-2,  5.0e-2, 2.5e-2],
+                   'darcyPWC'            : [2.5e-2, 5.0e-3, 5.0e-3, 5.0e-3,  5.0e-3, 1.0e-3],
+                   'navierStokes'        : [5.0e-5, m.nan , 5     , 5     ,  5.0e-0, 5.0e-3],
+                   'structuralMechanics' : [2.5e-1, m.nan , 2.5e-2, 1.0e-1,  5.0e-4, 0.0e-0],
+                   'helmholtz'           : [5.0e-1, m.nan , 1     , 1     ,  2.5e-3, 1.0e-2],
+                   'advection'           : [5.0e-3, m.nan , 5.0e-2, 5.0e-1,  1.0e-1, 2.5e-4]}
 
 
-    dict_wd     = {'poisson'          : [0     , 0     , 0     , 0     ,  5.0e-4, 1.0e-5],
-                'darcyPWC'            : [0     , 0     , 0     , 0     ,  1.0e-4, 1.0e-3],
-                'navierStokes'        : [1.0e-4, m.nan , 0     , 0     ,  1.0e-5, 2.5e-3],
-                'structuralMechanics' : [1.0e-4, m.nan , 1.0e-5, 5.0e-5,  2.5e-4, 2.5e-3],
-                'helmholtz'           : [0     , m.nan , 0     , 0     ,  1.0e-6, 2.5e-3],
-                'advection'           : [2.5e-5, m.nan , 1.0e-5, m.nan ,  1.0e-4, 1.0e-5]}
+    dict_wd     = {'poisson'             : [0     , 0     , 0     , 0     ,  5.0e-4, 1.0e-5],
+                   'darcyPWC'            : [0     , 0     , 0     , 0     ,  1.0e-4, 1.0e-3],
+                   'navierStokes'        : [1.0e-4, m.nan , 0     , 0     ,  1.0e-5, 2.5e-3],
+                   'structuralMechanics' : [1.0e-4, m.nan , 1.0e-5, 5.0e-5,  2.5e-4, 2.5e-3],
+                   'helmholtz'           : [0     , m.nan , 0     , 0     ,  1.0e-6, 2.5e-3],
+                   'advection'           : [2.5e-5, m.nan , 1.0e-5, 1.0e-4,  1.0e-4, 1.0e-5]}
 
     df_alpha  = pd.DataFrame(dict_alpha,
                     index = list_models)
@@ -655,7 +655,7 @@ for samp in range(ntest):
                 yout = model(out_masked.reshape(num_samp, res, res, 1)).reshape(num_samp, res, res)
         else:
             if no == 'mwt':
-                yout = model(out_masked.reshape(num_samp, res)).reshape(num_samp, res)
+                yout = model(out_masked.reshape(num_samp, res, 1)).reshape(num_samp, res)
             elif no == 'pcalin' or no == 'pcann':
                 yout = model(out_masked)
             else: 

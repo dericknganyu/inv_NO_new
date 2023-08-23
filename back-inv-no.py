@@ -300,6 +300,7 @@ if no == "pcalin":
         dY = 200
         params = {}
         params["layers"] = [dX , dY]
+        model = pcalin(params).cuda()
         res = 41
         MODELS = {40:'/home/derick/Documents/PCANN/structuralMechanics/pcalin-inv/models/last_model_041~res_0.288852~RelL2TestError_200~rd_1000~ntrain_5000~ntest_500~BatchSize_0.001~LR_0.1~Reg_0.01~gamma_2500~Step_8000~epochs_20230815-122948-404766.pt'}
     if pb == 'advection':
@@ -504,9 +505,11 @@ if no == 'mwt':
 elif no == 'pcalin' or no == 'pcann':
     if pb == 'darcyPWC':
         batch_size = 200  if no == 'pcalin' else 100
-    if pb == 'poisson':
+    elif pb == 'poisson':
         batch_size = 1000 if no == 'pcalin' else 500
-
+    else:
+        batch_size = 500 
+        
     old_res = res
     res = dX
     X_test = X_test.reshape(ntest, -1)
@@ -544,6 +547,9 @@ test_l2 = 0
 test_l2_noisy = 0
 total = len(test_loader)
 i = 0
+
+batch_size = ntest  if ntest <  batch_size else batch_size
+
 for x, y, y_noisy in test_loader:
     i += 1
     print("Running %s of %s"%(i, total))

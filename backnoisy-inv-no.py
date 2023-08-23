@@ -65,57 +65,121 @@ ntest = args.ntest
 ntrain = args.ntrain
 batch_size = args.bs
 
-if no == 'fno':
-    modes = 12
-    width = 32
-    model = FNO2d(modes, modes, width).cuda()
+add_noise = add_noise1d if pb == 'advection' else add_noise2d
+pb_2dim = True if pb != 'advection' else False
 
-if no == 'pino':
-    modes = 12
-    width = 32
-    model = FNO2d(modes, modes, width).cuda()
+if pb_2dim:
+    if no == 'fno':
+        modes = 12
+        width = 32
+        model = FNO2d(modes, modes, width).cuda()
 
-if no == 'ufno':
-    modes = 12
-    width = 32
-    padding = round_to_multiple(res, 2**3, direction='up') - res 
-    model = UFNO2d_modif(modes, modes, width, padding).cuda()
+    if no == 'pino':
+        modes = 12
+        width = 32
+        model = FNO2d(modes, modes, width).cuda()
 
-if no == 'mwt':
-    ich = 3
-    initializer = get_initializer('xavier_normal')
-    model = MWT2d(ich, 
-                alpha = 12,
-                c = 4,
-                k = 4, 
-                base = 'legendre', # 'chebyshev'
-                nCZ = 4,
-                L = 0,
-                initializer = initializer,
-                ).to(device)
+    if no == 'ufno':
+        modes = 12
+        width = 32
+        padding = round_to_multiple(res, 2**3, direction='up') - res 
+        model = UFNO2d_modif(modes, modes, width, padding).cuda()
 
-if no == "pcalin":
-    if pb == 'darcyPWC':
-        dX = 100
-        dY = 100
-        #params = {}
+    if no == 'mwt':
+        ich = 3
+        initializer = get_initializer('xavier_normal')
+        model = MWT2d(ich, 
+                    alpha = 12,
+                    c = 4,
+                    k = 4, 
+                    base = 'legendre', # 'chebyshev'
+                    nCZ = 4,
+                    L = 0,
+                    initializer = initializer,
+                    ).to(device)
+
+    if no == "pcalin":
+        if pb == 'darcyPWC':
+            dX = 100
+            dY = 100
+        if pb == 'poisson':
+            dX = 250
+            dY = 250
+        if pb == 'navierStokes':
+            dX = 30
+            dY = 30  
+        if pb == 'helmholtz':
+            dX = 200
+            dY = 200 
+        if pb == 'structuralMechanics':
+            dX = 200
+            dY = 200
+        params["layers"] = [dX , dY]                        
+        model = pcalin(params).cuda()
+    if no == "pcann":
+        if pb == 'darcyPWC':
+            dX = 30
+            dY = 30
+            p_drop = 0.01
+        if pb == 'poisson':
+            dX = 200
+            dY = 200
+            p_drop = 0.001
+        if pb == 'navierStokes':
+            dX = 30
+            dY = 30
+            p_drop = 0.001
+        if pb == 'helmholtz':
+            dX = 200
+            dY = 200
+            p_drop = 0.001  
+        if pb == 'structuralMechanics':
+            dX = 70
+            dY = 70
+            p_drop = 0.001 
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
+
+else:
+    if no == 'fno':
+        modes = 12
+        width = 32
+        model = FNO1d(modes, width).cuda()
+
+    if no == 'pino':
+        modes = 12
+        width = 32
+        model = FNO2d(modes, width).cuda()
+
+    if no == 'ufno':
+        modes = 12
+        width = 32
+        model = UFNO1d(modes, width).cuda()
+
+    if no == 'mwt':
+        initializer = get_initializer('xavier_normal')
+        ich = 1
+        model = MWT1d(ich, 
+                    alpha = 10, #12,
+                    c = 4*4, #4,
+                    k = 4, 
+                    base = 'legendre', # 'chebyshev'
+                    nCZ = 2, #4,
+                    #L = 0,
+                    initializer = initializer,
+                    ).to(device)
+
+    if no == "pcalin":
+        if pb == 'advection':
+            dX = 30
+            dY = 30
         params["layers"] = [dX , dY]
-    if pb == 'poisson':
-        dX = 250
-        dY = 250
-        #params = {}
-        params["layers"] = [dX , dY]
-    model = pcalin(params).cuda()
-if no == "pcann":
-    if pb == 'darcyPWC':
-        dX = 30
-        dY = 30
-        p_drop = 0.01
-    if pb == 'poisson':
-        dX = 200
-        dY = 200
-        p_drop = 0.001
-    model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
+        model = pcalin(params).cuda()
+    if no == "pcann":
+        if pb == 'advection':
+            dX = 30
+            dY = 30
+            p_drop = 0.001
+        model = pcann_snn(in_features=dX, out_features=dY, p_drop=p_drop, use_selu=True).cuda()
 
 myloss = LpLoss(size_average=False)
 
@@ -126,52 +190,66 @@ if torch.cuda.device_count() > 1:
 
 
 if pb == 'darcyPWC':
-    fileName_ex = "datasets/new_aUP_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5" 
-    fileName = "/localdata/Derick/stuart_data/Darcy_421/new_aUP_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    fileName = "datasets/new_aUP_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5" 
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/new_aUP_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyPWC/UnitGaussianNormalizer/'
     pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/darcyPWC/UnitGaussianNormalizer/'
 if pb == 'darcyLN': 
-    fileName_ex = "datasets/aUL_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    fileName = "/localdata/Derick/stuart_data/Darcy_421/aUL_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    fileName = "datasets/aUL_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/aUL_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/darcyLN/UnitGaussianNormalizer/'
     pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/darcyLN/UnitGaussianNormalizer/'
 if pb == 'poisson': 
-    fileName_ex = "datasets/fUG_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
-    fileName = "/localdata/Derick/stuart_data/Darcy_421/fUG_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    fileName = "datasets/fUG_Square_TrainData=1_TestData=1_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/fUG_Square_TrainData=1024_TestData=5000_Resolution=513X513_Domain=[0,1]X[0,1].hdf5"
     normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/poisson/UnitGaussianNormalizer/'
     pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/poisson/UnitGaussianNormalizer/'
 if pb == 'navierStokes': 
-    res = 64
-    fileName_ex = "datasets/NavierStokes_TrainData=1_TestData=1_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
-    fileName    = "/localdata/Derick/stuart_data/Darcy_421/NavierStokes_TrainData=1000_TestData=5000_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
-    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/navierStokes/UnitGaussianNormalizer/'
-    pcaPATH     = ''
+    fileName = "datasets/NavierStokes_TrainData=1_TestData=1_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/NavierStokes_TrainData=1000_TestData=5000_Resolution=64X64_Domain=[0,1]X[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/navierStokes/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/navierStokes/UnitGaussianNormalizer/'
 if pb == 'helmholtz': 
-    res = 101
-    fileName_ex = "datasets/Helmholtz_TrainData=1_TestData=1_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
-    fileName    = "/localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
-    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
-    pcaPATH     = ''
+    fileName = "datasets/Helmholtz_TrainData=1_TestData=1_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/Helmholtz_TrainData=1000_TestData=5000_Resolution=101X101_Domain=[0,1]X[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/helmholtz/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/helmholtz/UnitGaussianNormalizer/'
 if pb == 'structuralMechanics': 
-    res = 41
-    fileName_ex = "datasets/StructuralMechanics_TrainData=1_TestData=1_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
-    fileName    = "/localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
-    normPATH    = '/localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
-    pcaPATH     = ''
+    fileName = "datasets/StructuralMechanics_TrainData=1_TestData=1_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
+    FILEName = "/localdata/Derick/stuart_data/Darcy_421/StructuralMechanics_TrainData=1000_TestData=5000_Resolution=41X41_Domain=[0,1]X[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/structuralMechanics/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/structuralMechanics/UnitGaussianNormalizer/'
+if pb == 'advection': 
+    fileName = "datasets/Advection_TrainData=1_TestData=1_Resolution=200_Domain=[0,1].hdf5"
+    FILEName = "../../../../../../localdata/Derick/stuart_data/Darcy_421/Advection_TrainData=1000_TestData=5000_Resolution=200_Domain=[0,1].hdf5"
+    normPATH = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/normalisers/advection/UnitGaussianNormalizer/'
+    pcaPATH  = '../../../../../../localdata/Derick/stuart_data/Darcy_421/operators/pca/advection/UnitGaussianNormalizer/'
 
-add_noise = add_noise1d if pb == 'advection' else add_noise2d
 
-Y_train, X_train, Y_test, X_test = readtoArray(fileName, 1, 1, Nx = 512, Ny = 512)
-useless = np.zeros((1, res, res))#Y_TRAIN[ :2, :, :]
-print("Adding noise...")
-_, X_train, _, X_test = add_noise((useless, X_train, useless, X_test), noise_ratio)
 
-print ("Converting dataset to numpy array and subsamping.")
-tt = time.time()
-X_train = SubSample(np.array(X_train[ :ntrain, :, :]), res, res)
-Y_train = SubSample(np.array(Y_train[ :ntrain, :, :]), res, res)
-X_test  = SubSample(np.array(X_test [ :ntest , :, :]), res, res)
-Y_test  = SubSample(np.array(Y_test [ :ntest , :, :]), res, res)
+Y_train, X_train, Y_test, X_test = readtoArray(FILEName, 1, 1, Nx = 512, Ny = 512)
+if pb_2dim:
+    useless = np.zeros((1, res, res))#Y_TRAIN[ :2, :, :]
+    print("Adding noise...")
+    _, X_train, _, X_test = add_noise((useless, X_train, useless, X_test), noise_ratio)
+
+    print ("Converting dataset to numpy array and subsamping.")
+    tt = time.time()
+    X_train = SubSample(np.array(X_train[ :ntrain, :, :]), res, res)
+    Y_train = SubSample(np.array(Y_train[ :ntrain, :, :]), res, res)
+    X_test  = SubSample(np.array(X_test [ :ntest , :, :]), res, res)
+    Y_test  = SubSample(np.array(Y_test [ :ntest , :, :]), res, res)
+else:
+    useless = np.zeros((1, res))#Y_TRAIN[ :2, :, :]
+    print("Adding noise...")
+    _, X_train, _, X_test = add_noise((useless, X_train, useless, X_test), noise_ratio)
+
+    print ("Converting dataset to numpy array and subsamping.")
+    tt = time.time()
+    X_train = SubSample1D(np.array(X_train[ :ntrain, :]), res)
+    Y_train = SubSample1D(np.array(Y_train[ :ntrain, :]), res)
+    X_test  = SubSample1D(np.array(X_test [ :ntest , :]), res)
+    Y_test  = SubSample1D(np.array(Y_test [ :ntest , :]), res)
 
 print ("    Conversion completed after %.2f minutes"%((time.time()-tt)/60))
 
@@ -187,17 +265,23 @@ if no == 'fno' or no == 'ufno' or no == 'pino':
 if no == 'mwt':
     old_res = res
     res = closest_power(res)
-    X_train0 = CubicSpline3D(X_train, res, res)
-    Y_train0 = CubicSpline3D(Y_train, res, res)
-    X_test0  = CubicSpline3D(X_test , res, res)
-    Y_test0  = CubicSpline3D(Y_test , res, res)
+    if pb_2dim:
+        X_train0 = CubicSpline3D(X_train, res, res)
+        Y_train0 = CubicSpline3D(Y_train, res, res)
+        X_test0  = CubicSpline3D(X_test , res, res)
+        Y_test0  = CubicSpline3D(Y_test , res, res)
 
-    grids_mwt = []
-    grids_mwt.append(np.linspace(0, 1, res))
-    grids_mwt.append(np.linspace(0, 1, res))
-    grid_mwt = np.vstack([xx.ravel() for xx in np.meshgrid(*grids_mwt)]).T
-    grid_mwt = grid_mwt.reshape(1,res,res,2)
-    grid_mwt = torch.tensor(grid_mwt, dtype=torch.float)#.cuda()
+        grids_mwt = []
+        grids_mwt.append(np.linspace(0, 1, res))
+        grids_mwt.append(np.linspace(0, 1, res))
+        grid_mwt = np.vstack([xx.ravel() for xx in np.meshgrid(*grids_mwt)]).T
+        grid_mwt = grid_mwt.reshape(1,res,res,2)
+        grid_mwt = torch.tensor(grid_mwt, dtype=torch.float)#.cuda()
+    else:
+        X_train0 = CubicSpline2D(X_train, res)
+        Y_train0 = CubicSpline2D(Y_train, res)
+        X_test0  = CubicSpline2D(X_test , res)
+        Y_test0  = CubicSpline2D(Y_test , res)
 
     x_train = torch.from_numpy(X_train0).float()#.cuda()
     y_train = torch.from_numpy(Y_train0).float()#.cuda()
@@ -242,19 +326,34 @@ y_train = y_normalizer.encode(y_train)
 #x_normalizer.cuda()
 y_normalizer.cuda()
 
-if no == 'fno' or no == 'ufno' or no == 'pino':
-    x_train = x_train.reshape(ntrain,res,res,1)
-    x_test = x_test.reshape(ntest,res,res,1)
+if pb_2dim:
+    if no == 'fno' or no == 'ufno' or no == 'pino':
+        x_train = x_train.reshape(ntrain,res,res,1)
+        x_test = x_test.reshape(ntest,res,res,1)
 
-    train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
-    test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
+        train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
+        test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
 
-if no == 'mwt':
-    x_train = torch.cat([x_train.reshape(ntrain, res, res, 1), grid_mwt.repeat(ntrain,1,1,1)], dim=3)
-    x_test  = torch.cat([x_test.reshape (ntest , res, res, 1), grid_mwt.repeat(ntest,1,1,1)], dim=3)
+    if no == 'mwt':
+        x_train = torch.cat([x_train.reshape(ntrain, res, res, 1), grid_mwt.repeat(ntrain,1,1,1)], dim=3)
+        x_test  = torch.cat([x_test.reshape (ntest , res, res, 1), grid_mwt.repeat(ntest,1,1,1)], dim=3)
 
-    train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
-    test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
+        train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
+        test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
+else:
+    if no == 'fno' or no == 'ufno' or no == 'pino':
+        x_train = x_train.reshape(ntrain,res,1)
+        x_test = x_test.reshape(ntest,res,1)
+
+        train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
+        test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
+
+    if no == 'mwt':
+        x_train = x_train.reshape(ntrain, res, 1)
+        x_test  = x_test.reshape (ntest , res, 1)
+        train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
+        test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
+
 
 if no == 'pcalin' or no == 'pcann':
     if no == 'pcalin': 
@@ -265,13 +364,21 @@ if no == 'pcalin' or no == 'pcann':
             step_size = 2500
             gamma = 0.01
             epochs = 8000
-        if pb == 'darcyPWC':
+        elif pb == 'darcyPWC':
             batch_size = 200 
             wd = 0.15
             learning_rate = 0.001
             step_size = 2500
             gamma = 0.01
             epochs = 8000
+        else:
+            batch_size = 500 
+            wd = 0.1
+            learning_rate = 0.001
+            step_size = 2500
+            gamma = 0.01
+            epochs = 8000
+
     if no == 'pcann':
         if pb == 'poisson':
             batch_size = 500
@@ -280,14 +387,21 @@ if no == 'pcalin' or no == 'pcann':
             step_size = 2500
             gamma = 0.1
             epochs = 10000
-        if pb == 'darcyPWC':
+        elif pb == 'darcyPWC':
             batch_size = 100
             wd = 0.1
             learning_rate = 0.0001
             step_size = 2500
             gamma = 0.01
             epochs = 10000
-            
+        else:
+            batch_size = 500 
+            wd = 0.1
+            learning_rate = 0.00001
+            step_size = 2500
+            gamma = 0.1
+            epochs = 10000
+
     torch.manual_seed(0)
     np.random.seed(0)
     train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=False)#shuffle=True)
@@ -330,12 +444,18 @@ for ep in range(epochs):
         optimizer.zero_grad()
         out = model(x)
         if no != 'pcalin' and no != 'pcann':
-            out = out.reshape(batch_size, res, res)        
+            if pb_2dim:
+                out = out.reshape(batch_size, res, res)  
+            else: 
+                out = out.reshape(batch_size, res)      
         out = y_normalizer.decode(out)
         y = y_normalizer.decode(y)
 
         if no == 'pino':
-            loss_f, loss_bd = PINO_loss(x.reshape(batch_size, res, res), out) #Interesting to note that using yout inplace of y_noisy here produces worst results for no noise (It however very slightly improves FNO results).
+            if pb_2dim:
+                loss_f, loss_bd = PINO_loss(x.reshape(batch_size, res, res), out) #Interesting to note that using yout inplace of y_noisy here produces worst results for no noise (It however very slightly improves FNO results).
+            else:
+                loss_f, loss_bd = PINO_loss(x.reshape(batch_size, res), out)
         else:
             loss_f, loss_bd = 0, 0 
 
@@ -349,11 +469,18 @@ for ep in range(epochs):
         optimizer.step()
 
         if no == 'mwt':
-            #print("Returning to orignial resolution to get test error based on it")
-            out = CubicSpline3D(out.detach().cpu().numpy(), old_res, old_res)
-            out = torch.from_numpy(out).float().to(device)
-            y   = CubicSpline3D(y.detach().cpu().numpy(), old_res, old_res)
-            y   = torch.from_numpy(y).float().to(device)
+            if pb_2dim:
+                #print("Returning to orignial resolution to get test error based on it")
+                out = CubicSpline3D(out.detach().cpu().numpy(), old_res, old_res)
+                out = torch.from_numpy(out).float().to(device)
+                y   = CubicSpline3D(y.detach().cpu().numpy(), old_res, old_res)
+                y   = torch.from_numpy(y).float().to(device)
+            else:
+                #print("Returning to orignial resolution to get test error based on it")
+                out = CubicSpline2D(out.detach().cpu().numpy(), old_res)
+                out = torch.from_numpy(out).float().to(device)
+                y   = CubicSpline2D(y.detach().cpu().numpy(), old_res)
+                y   = torch.from_numpy(y).float().to(device)
 
         if no == 'pcalin' or no == 'pcann':
             #print("Returning to orignial resolution to get test error based on it")
@@ -376,6 +503,9 @@ for ep in range(epochs):
     model.eval()
     test_l2 = 0.0
     abs_err = 0.0
+
+    batch_size = ntest  if ntest <  batch_size else batch_size
+
     with torch.no_grad():
 
         for x, y in test_loader:
@@ -383,15 +513,25 @@ for ep in range(epochs):
 
             out = model(x)
             if no != 'pcalin' and no != 'pcann':
-                out = out.reshape(batch_size, res, res)   
+                if pb_2dim:
+                    out = out.reshape(batch_size, res, res)   
+                else:
+                    out = out.reshape(batch_size, res)   
             out = y_normalizer.decode(out)
 
             if no == 'mwt':
-                #print("Returning to orignial resolution to get test error based on it")
-                out = CubicSpline3D(out.detach().cpu().numpy(), old_res, old_res)
-                out = torch.from_numpy(out).float().to(device)
-                y   = CubicSpline3D(y.detach().cpu().numpy(), old_res, old_res)
-                y   = torch.from_numpy(y).float().to(device)
+                if pb_2dim:
+                    #print("Returning to orignial resolution to get test error based on it")
+                    out = CubicSpline3D(out.detach().cpu().numpy(), old_res, old_res)
+                    out = torch.from_numpy(out).float().to(device)
+                    y   = CubicSpline3D(y.detach().cpu().numpy(), old_res, old_res)
+                    y   = torch.from_numpy(y).float().to(device)
+                else:
+                    #print("Returning to orignial resolution to get test error based on it")
+                    out = CubicSpline2D(out.detach().cpu().numpy(), old_res)
+                    out = torch.from_numpy(out).float().to(device)
+                    y   = CubicSpline2D(y.detach().cpu().numpy(), old_res)
+                    y   = torch.from_numpy(y).float().to(device)
 
             if no == 'pcalin' or no == 'pcann':
                 #print("Returning to orignial resolution to get test error based on it")
@@ -417,6 +557,9 @@ for ep in range(epochs):
     file.write(str(ep)+" "+str(train_l2)+" "+str(test_l2)+" "+str(train_f)+"\n")
 
 ModelInfos = '_res=%s_%.6f-relErr-%s-%s-%s-noise'%(res, test_l2, pb, no, noise_ratio)
+
+file = open('figures-backnoisy'+'/Log.txt',"a")
+file.write("Problem: %s NeuralOperator: %s NoiseRatio: %s Error: %.5f\n"%(pb, no, noise_ratio, test_l2))
                             
 torch.save(model.state_dict(), directory + "/last_model"+ModelInfos+".pt")
 
@@ -448,106 +591,197 @@ print()
 print()
 
 #Just a file containing data sampled in same way as the training and test dataset
-Y_train, X_train, Y_test, X_test = readtoArray(fileName_ex, 1, 1, Nx = 512, Ny = 512)
+Y_train, X_train, Y_test, X_test = readtoArray(fileName, 1, 1, Nx = 512, Ny = 512)
 _      , X_train, _     , X_test = add_noise((useless, X_train, useless, X_test), noise_ratio)
+if pb_2dim:
+    if no == 'fno' or no == 'ufno' or no == 'pino':
+        X_train = SubSample(np.array(X_train), res, res)
 
-if no == 'fno' or no == 'ufno' or no == 'pino':
-    X_train = SubSample(np.array(X_train), res, res)
+        print("Starting the Verification with Sampled Example")
+        tt = time.time()
+        Y_FDM = SubSample(np.array(Y_train), res, res)[0]
 
-    print("Starting the Verification with Sampled Example")
-    tt = time.time()
-    Y_FDM = SubSample(np.array(Y_train), res, res)[0]
+        print("      Doing FNO on Example...")
+        tt = time.time()
+        ff = torch.from_numpy(X_train).float()
+        ff = x_normalizer.encode(ff)
+        ff = ff.reshape(1,res,res,1).cuda()#torch.cat([ff.reshape(1,res,res,1), grid.repeat(1,1,1,1)], dim=3).cuda()
 
-    print("      Doing FNO on Example...")
-    tt = time.time()
-    ff = torch.from_numpy(X_train).float()
-    ff = x_normalizer.encode(ff)
-    ff = ff.reshape(1,res,res,1).cuda()#torch.cat([ff.reshape(1,res,res,1), grid.repeat(1,1,1,1)], dim=3).cuda()
+        Y_NO = y_normalizer.decode(model(ff).reshape(1, res, res)).detach().cpu().numpy()
+        Y_NO = Y_NO[0] 
+        print("            FNO completed after %s"%(time.time()-tt))
 
-    Y_NO = y_normalizer.decode(model(ff).reshape(1, res, res)).detach().cpu().numpy()
-    Y_NO = Y_NO[0] 
-    print("            FNO completed after %s"%(time.time()-tt))
+    if no == 'mwt':
+        X_train = SubSample(np.array(X_train), old_res, old_res)
+        X_train_cs = CubicSpline3D(X_train, res, res)
 
-if no == 'mwt':
-    X_train = SubSample(np.array(X_train), old_res, old_res)
-    X_train_cs = CubicSpline3D(X_train, res, res)
+        print("Starting the Verification with Sampled Example")
+        tt = time.time()
+        Y_FDM = SubSample(np.array(Y_train), old_res, old_res)[0]
+        #Y_FDM = CubicSpline3D(Y_FDM, new_res, new_res)
 
-    print("Starting the Verification with Sampled Example")
-    tt = time.time()
-    Y_FDM = SubSample(np.array(Y_train), old_res, old_res)[0]
-    #Y_FDM = CubicSpline3D(Y_FDM, new_res, new_res)
+        print("      Doing MWT on Example...")
+        tt = time.time()
+        ff = torch.from_numpy(X_train_cs).float()
+        ff = x_normalizer.encode(ff)
+        ff = torch.cat([ff.reshape(1,res,res,1), grid_mwt.repeat(1,1,1,1)], dim=3).cuda() #ff.reshape(1,res,res,1).cuda()#
 
-    print("      Doing MWT on Example...")
-    tt = time.time()
-    ff = torch.from_numpy(X_train_cs).float()
-    ff = x_normalizer.encode(ff)
-    ff = torch.cat([ff.reshape(1,res,res,1), grid_mwt.repeat(1,1,1,1)], dim=3).cuda() #ff.reshape(1,res,res,1).cuda()#
+        Y_NO = model(ff)
+        Y_NO = Y_NO.reshape(1, res, res)
+        Y_NO = y_normalizer.decode(Y_NO)
+        Y_NO = Y_NO.detach().cpu().numpy()
+        Y_NO = CubicSpline3D(Y_NO, old_res, old_res)
+        Y_NO = Y_NO[0] 
+        print("            MWT completed after %s"%(time.time()-tt)) 
 
-    Y_NO = model(ff)
-    Y_NO = Y_NO.reshape(1, res, res)
-    Y_NO = y_normalizer.decode(Y_NO)
-    Y_NO = Y_NO.detach().cpu().numpy()
-    Y_NO = CubicSpline3D(Y_NO, old_res, old_res)
-    Y_NO = Y_NO[0] 
-    print("            MWT completed after %s"%(time.time()-tt)) 
+    if no == 'pcalin' or no == 'pcann':
+        X_train = SubSample(X_train, old_res, old_res)
+        Y_train = SubSample(Y_train, old_res, old_res)
+        ff = np.array(X_train[0])
 
-if no == 'pcalin' or no == 'pcann':
-	X_train = SubSample(X_train, old_res, old_res)
-	Y_train = SubSample(Y_train, old_res, old_res)
-	ff = np.array(X_train[0])
+        print("Starting the Verification with Sampled Example")
+        Y_FDM = np.array(Y_train[0])
 
-	print("Starting the Verification with Sampled Example")
-	Y_FDM = np.array(Y_train[0])
+        print("      Doing PCANN on Example...")
+        tt = time.time()
 
-	print("      Doing PCANN on Example...")
-	tt = time.time()
+        inPCANN = pcaX.transform(ff.reshape(1, -1))
+        inPCANN = torch.from_numpy(inPCANN).float().to(device)
+        inPCANN = model(x_normalizer.encode(inPCANN))
+        inPCANN = y_normalizer.decode(inPCANN) #changed!!
+        inPCANN = inPCANN.detach().cpu().numpy()
 
-	inPCANN = pcaX.transform(ff.reshape(1, -1))
-	inPCANN = torch.from_numpy(inPCANN).float().to(device)
-	inPCANN = model(x_normalizer.encode(inPCANN))
-	inPCANN = y_normalizer.decode(inPCANN) #changed!!
-	inPCANN = inPCANN.detach().cpu().numpy()
+        Y_NO = pcaY.inverse_transform(inPCANN).reshape(old_res, old_res)
+        print("            PCANN completed after %s"%(time.time()-tt))
 
-	Y_NO = pcaY.inverse_transform(inPCANN).reshape(old_res, old_res)
-	print("            PCANN completed after %s"%(time.time()-tt))
+    myLoss = LpLoss(size_average=False)
+    print()
+    print("Ploting comparism of FDM and FNO Simulation results")
+    fig = plt.figure(figsize=((5+2)*4, 5))
 
-myLoss = LpLoss(size_average=False)
-print()
-print("Ploting comparism of FDM and FNO Simulation results")
-fig = plt.figure(figsize=((5+2)*4, 5))
+    fig.suptitle(r"Plot of $-\nabla \cdot (a(s) \nabla u(s)) = f(s), \partial \Omega = 0$ with $u|_{\partial \Omega}  = 0.$")
 
-fig.suptitle(r"Plot of $-\nabla \cdot (a(s) \nabla u(s)) = f(s), \partial \Omega = 0$ with $u|_{\partial \Omega}  = 0.$")
+    colourMap = plt.cm.magma#parula() #plt.cm.jet #plt.cm.coolwarm
 
-colourMap = plt.cm.magma#parula() #plt.cm.jet #plt.cm.coolwarm
+    plt.subplot(1, 4, 1)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Input")
+    plt.imshow(X_train[0], cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#format=OOMFormatter(-5))
 
-plt.subplot(1, 4, 1)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title("Input")
-plt.imshow(X_train[0], cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#format=OOMFormatter(-5))
+    plt.subplot(1, 4, 2)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Truth")
+    plt.imshow(Y_FDM, cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#format=OOMFormatter(-5))
 
-plt.subplot(1, 4, 2)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title("Truth")
-plt.imshow(Y_FDM, cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#format=OOMFormatter(-5))
+    plt.subplot(1, 4, 3)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title('Noisy inv'+no.upper())
+    plt.imshow(Y_NO, cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
+    plt.colorbar()#format=OOMFormatter(-5))
 
-plt.subplot(1, 4, 3)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title('Noisy inv'+no.upper())
-plt.imshow(Y_NO, cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto')#, vmin=0, vmax=1, )
-plt.colorbar()#format=OOMFormatter(-5))
+    plt.subplot(1, 4, 4)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Truth-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(Y_NO, Y_FDM).item(), 3)))
+    plt.imshow(np.abs(Y_FDM - Y_NO), cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#)#, vmin=0, vmax=1, )
+    plt.colorbar()#format=OOMFormatter(-5))
 
-plt.subplot(1, 4, 4)
-plt.xlabel('x')#, fontsize=16, labelpad=15)
-plt.ylabel('y')#, fontsize=16, labelpad=15)
-plt.title("Truth-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(Y_NO, Y_FDM).item(), 3)))
-plt.imshow(np.abs(Y_FDM - Y_NO), cmap=colourMap, extent=[params["xmin"], params["xmax"], params["ymin"], params["ymax"]], origin='lower', aspect = 'auto', norm=matplotlib.colors.LogNorm())#)#, vmin=0, vmax=1, )
-plt.colorbar()#format=OOMFormatter(-5))
+    plt.savefig(directory_figs + '/compare'+ModelInfos+'.png',dpi=500)
 
-plt.savefig(directory_figs + '/compare'+ModelInfos+'.png',dpi=500)
+else:
+    if no == 'fno' or no == 'ufno' or no == 'pino':
+        X_train = SubSample1D(np.array(X_train),res)
 
-#plt.show()
+        print("Starting the Verification with Sampled Example")
+        tt = time.time()
+        Y_FDM = SubSample1D(np.array(Y_train),res)[0]
+
+        print("      Doing FNO on Example...")
+        tt = time.time()
+        ff = torch.from_numpy(X_train).float()
+        ff = x_normalizer.encode(ff)
+        ff = ff.reshape(1,res,1).cuda()#torch.cat([ff.reshape(1,res,res,1), grid.repeat(1,1,1,1)], dim=3).cuda()
+
+        Y_NO = y_normalizer.decode(model(ff).reshape(1, res)).detach().cpu().numpy()
+        Y_NO = Y_NO[0] 
+        print("            FNO completed after %s"%(time.time()-tt))
+
+    if no == 'mwt':
+        X_train = SubSample1D(np.array(X_train), old_res)
+        X_train_cs = CubicSpline2D(X_train, res)
+
+        print("Starting the Verification with Sampled Example")
+        tt = time.time()
+        Y_FDM = SubSample1D(np.array(Y_train), old_res)[0]
+        #Y_FDM = CubicSpline2D(Y_FDM, new_res, new_res)
+
+        print("      Doing MWT on Example...")
+        tt = time.time()
+        ff = torch.from_numpy(X_train_cs).float()
+        ff = x_normalizer.encode(ff)
+        ff = ff.reshape(1,res,1).cuda() #ff.reshape(1,res,res,1).cuda()#
+
+        Y_NO = model(ff)
+        Y_NO = Y_NO.reshape(1, res)
+        Y_NO = y_normalizer.decode(Y_NO)
+        Y_NO = Y_NO.detach().cpu().numpy()
+        Y_NO = CubicSpline2D(Y_NO, old_res)
+        Y_NO = Y_NO[0] 
+        print("            MWT completed after %s"%(time.time()-tt)) 
+
+    if no == 'pcalin' or no == 'pcann':
+        X_train = SubSample1D(X_train, old_res)
+        Y_train = SubSample1D(Y_train, old_res)
+        ff = np.array(X_train[0])
+
+        print("Starting the Verification with Sampled Example")
+        Y_FDM = np.array(Y_train[0])
+
+        print("      Doing PCANN on Example...")
+        tt = time.time()
+
+        inPCANN = pcaX.transform(ff.reshape(1, -1))
+        inPCANN = torch.from_numpy(inPCANN).float().to(device)
+        inPCANN = model(x_normalizer.encode(inPCANN))
+        inPCANN = y_normalizer.decode(inPCANN) #changed!!
+        inPCANN = inPCANN.detach().cpu().numpy()
+
+        Y_NO = pcaY.inverse_transform(inPCANN).flatten()
+        print("            PCANN completed after %s"%(time.time()-tt))
+
+    myLoss = LpLoss(size_average=False)
+    print()
+    print("Ploting comparism of FDM and FNO Simulation results")
+    fig = plt.figure(figsize=((5+2)*4, 5))
+
+    plt.subplot(1, 4, 1)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Input")
+    plt.plot(X_train[0])
+
+    plt.subplot(1, 4, 2)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Truth")
+    plt.plot(Y_FDM)
+
+    plt.subplot(1, 4, 3)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title('Noisy inv'+no.upper())
+    plt.plot(Y_NO)
+
+    plt.subplot(1, 4, 4)
+    plt.xlabel('x')#, fontsize=16, labelpad=15)
+    plt.ylabel('y')#, fontsize=16, labelpad=15)
+    plt.title("Truth-"+'inv'+no.upper()+", RelL2Err = "+str(round(myLoss.rel_single(Y_NO, Y_FDM).item(), 3)))
+    plt.plot(np.abs(Y_FDM - Y_NO))
+    plt.yscale('log')
+
+    plt.savefig(directory_figs + '/compare'+ModelInfos+'.png',dpi=500)#plt.show()
